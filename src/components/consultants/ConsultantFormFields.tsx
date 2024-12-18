@@ -9,7 +9,7 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
   company_name: z.string().optional(),
-  group_ids: z.array(z.string()).optional(),
+  group_ids: z.array(z.string()).default([]),
 });
 
 type FormValues = z.infer<typeof formSchema>;

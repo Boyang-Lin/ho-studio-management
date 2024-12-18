@@ -1,8 +1,20 @@
-import * as React from "react";
-import { X } from "lucide-react";
+import { useState } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
-import { Command as CommandPrimitive } from "cmdk";
 
 interface Option {
   value: string;
@@ -15,78 +27,68 @@ interface MultiSelectProps {
   onChange: (values: string[]) => void;
 }
 
-export function MultiSelect({ options, selected, onChange }: MultiSelectProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [open, setOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState("");
+const MultiSelect = ({ options, selected = [], onChange }: MultiSelectProps) => {
+  const [open, setOpen] = useState(false);
 
-  const handleUnselect = (value: string) => {
-    onChange(selected.filter((s) => s !== value));
+  const selectedLabels = options
+    .filter((option) => selected.includes(option.value))
+    .map((option) => option.label);
+
+  const toggleOption = (value: string) => {
+    const newSelected = selected.includes(value)
+      ? selected.filter((item) => item !== value)
+      : [...selected, value];
+    onChange(newSelected);
   };
-
-  const handleSelect = (value: string) => {
-    setInputValue("");
-    if (selected.includes(value)) {
-      onChange(selected.filter((s) => s !== value));
-    } else {
-      onChange([...selected, value]);
-    }
-  };
-
-  const selectedOptions = options.filter((option) => selected.includes(option.value));
 
   return (
-    <Command className="overflow-visible bg-transparent">
-      <div className="group rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-        <div className="flex flex-wrap gap-1">
-          {selectedOptions.map((option) => (
-            <Badge key={option.value} variant="secondary">
-              {option.label}
-              <button
-                className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleUnselect(option.value);
-                  }
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onClick={() => handleUnselect(option.value)}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          <CommandPrimitive.Input
-            ref={inputRef}
-            value={inputValue}
-            onValueChange={setInputValue}
-            onBlur={() => setOpen(false)}
-            onFocus={() => setOpen(true)}
-            placeholder="Select groups..."
-            className="ml-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
-          />
-        </div>
-      </div>
-      <div className="relative mt-2">
-        {open && (
-          <div className="absolute top-0 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
-            <CommandGroup className="h-full overflow-auto">
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  onSelect={() => handleSelect(option.value)}
-                  className="cursor-pointer"
-                >
-                  {option.label}
-                </CommandItem>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          {selectedLabels.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {selectedLabels.map((label) => (
+                <Badge key={label} variant="secondary">
+                  {label}
+                </Badge>
               ))}
-            </CommandGroup>
-          </div>
-        )}
-      </div>
-    </Command>
+            </div>
+          ) : (
+            "Select groups..."
+          )}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <Command>
+          <CommandInput placeholder="Search groups..." />
+          <CommandEmpty>No groups found.</CommandEmpty>
+          <CommandGroup>
+            {options.map((option) => (
+              <CommandItem
+                key={option.value}
+                value={option.value}
+                onSelect={() => toggleOption(option.value)}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    selected.includes(option.value) ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {option.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
-}
+};
+
+export default MultiSelect;
