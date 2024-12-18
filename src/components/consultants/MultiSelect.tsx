@@ -21,13 +21,13 @@ interface Option {
   label: string;
 }
 
-interface MultiSelectProps {
+export interface MultiSelectProps {
   options: Option[];
   selected: string[];
   onChange: (values: string[]) => void;
 }
 
-const MultiSelect = ({ options, selected = [], onChange }: MultiSelectProps) => {
+export const MultiSelect = ({ options, selected = [], onChange }: MultiSelectProps) => {
   const [open, setOpen] = useState(false);
 
   const selectedLabels = options
@@ -90,5 +90,3 @@ const MultiSelect = ({ options, selected = [], onChange }: MultiSelectProps) => 
     </Popover>
   );
 };
-
-export default MultiSelect;
