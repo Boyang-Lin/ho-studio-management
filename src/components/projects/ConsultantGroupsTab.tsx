@@ -1,5 +1,6 @@
 import ConsultantGroup from "@/components/consultants/ConsultantGroup";
 import EngagedConsultantCardWithDialog from "@/components/consultants/EngagedConsultantCardWithDialog";
+import { TaskSummaryCard } from "@/components/consultants/task/TaskSummaryCard";
 
 interface ConsultantGroupsTabProps {
   consultantGroups: Array<{
@@ -79,12 +80,16 @@ const ConsultantGroupsTab = ({
         {populatedGroups.map(group => (
           <div key={group.id} className="space-y-4">
             <h3 className="text-lg font-semibold">{group.name}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {group.consultants.map((consultant: any) => (
-                <EngagedConsultantCardWithDialog
-                  key={consultant.projectConsultant.id}
-                  projectConsultant={consultant.projectConsultant}
-                />
+                <div key={consultant.projectConsultant.id} className="grid grid-cols-2 gap-4">
+                  <EngagedConsultantCardWithDialog
+                    projectConsultant={consultant.projectConsultant}
+                  />
+                  <TaskSummaryCard
+                    projectConsultantId={consultant.projectConsultant.id}
+                  />
+                </div>
               ))}
             </div>
           </div>
