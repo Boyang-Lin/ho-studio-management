@@ -2,15 +2,20 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
+import * as z from "zod";
+
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  company_name: z.string().optional(),
+  group_id: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface ConsultantFormFieldsProps {
-  form: UseFormReturn<{
-    name: string;
-    email: string;
-    phone?: string;
-    company_name?: string;
-    group_id?: string;
-  }>;
+  form: UseFormReturn<FormValues>;
   groups: {
     id: string;
     name: string;
