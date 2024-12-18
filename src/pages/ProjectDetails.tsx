@@ -72,7 +72,7 @@ const ProjectDetails = () => {
           table: 'project_consultants',
           filter: `project_id=eq.${id}` // Only listen to changes for this project
         },
-        () => {
+        (payload) => {
           // Invalidate and refetch the project_consultants query
           queryClient.invalidateQueries({
             queryKey: ["project_consultants", id],
