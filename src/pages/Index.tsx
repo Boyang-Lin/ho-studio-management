@@ -23,7 +23,7 @@ const Index = () => {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
-  const { data: projects, refetch: refetchProjects } = useQuery({
+  const { data: projects = [], refetch: refetchProjects } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -36,7 +36,7 @@ const Index = () => {
     },
   });
 
-  const { data: consultantGroups, refetch: refetchConsultantGroups } = useQuery({
+  const { data: consultantGroups = [], refetch: refetchConsultantGroups } = useQuery({
     queryKey: ["consultant_groups"],
     queryFn: async () => {
       const { data: groups, error: groupsError } = await supabase
@@ -47,7 +47,7 @@ const Index = () => {
 
       return groups.map(group => ({
         ...group,
-        consultants: group.consultants.map((membership: any) => membership.consultant)
+        consultants: group.consultants?.map((membership: any) => membership.consultant) || []
       }));
     },
   });

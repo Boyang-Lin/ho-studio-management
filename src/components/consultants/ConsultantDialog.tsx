@@ -14,7 +14,7 @@ interface ConsultantDialogProps {
     name: string;
     email: string;
     phone?: string;
-    group_id?: string;
+    company_name?: string;
   };
   groups: {
     id: string;
@@ -22,7 +22,12 @@ interface ConsultantDialogProps {
   }[];
 }
 
-const ConsultantDialog = ({ open, onOpenChange, consultant, groups }: ConsultantDialogProps) => {
+const ConsultantDialog = ({ 
+  open, 
+  onOpenChange, 
+  consultant, 
+  groups = [] // Provide default empty array
+}: ConsultantDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
