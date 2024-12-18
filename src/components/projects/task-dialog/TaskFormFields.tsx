@@ -9,7 +9,7 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   due_date: z.string().optional(),
-  status: z.enum(["Todo", "In Progress", "Completed"]),
+  status: z.enum(["Pending Input", "In Progress", "Completed"]),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -83,10 +83,10 @@ const TaskFormFields = ({ form }: TaskFormFieldsProps) => {
               >
                 <FormItem className="flex items-center space-x-3 space-y-0">
                   <FormControl>
-                    <RadioGroupItem value="Todo" />
+                    <RadioGroupItem value="Pending Input" />
                   </FormControl>
                   <FormLabel className="font-normal">
-                    Todo
+                    Pending Input
                   </FormLabel>
                 </FormItem>
                 <FormItem className="flex items-center space-x-3 space-y-0">

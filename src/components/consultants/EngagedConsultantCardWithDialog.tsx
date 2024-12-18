@@ -6,8 +6,9 @@ import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 import { Button } from "@/components/ui/button";
 import { Plus, User, Building2, Mail, Pencil } from "lucide-react";
 import TaskDialog from "@/components/projects/TaskDialog";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface EngagedConsultantCardWithDialogProps {
   projectConsultant: {
@@ -42,10 +43,16 @@ const getTaskStatusColor = (status: string) => {
       return "bg-green-100 text-green-800";
     case "In Progress":
       return "bg-blue-100 text-blue-800";
-    case "Todo":
+    case "Pending Input":
     default:
       return "bg-yellow-100 text-yellow-800";
   }
+};
+
+const getNextStatus = (currentStatus: string) => {
+  const statuses = ["Pending Input", "In Progress", "Completed"];
+  const currentIndex = statuses.indexOf(currentStatus);
+  return statuses[(currentIndex + 1) % statuses.length];
 };
 
 const EngagedConsultantCardWithDialog = ({
@@ -54,6 +61,8 @@ const EngagedConsultantCardWithDialog = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["consultant_tasks", projectConsultant.id],
@@ -72,6 +81,33 @@ const EngagedConsultantCardWithDialog = ({
   const handleEditTask = (task: any) => {
     setSelectedTask(task);
     setTaskDialogOpen(true);
+  };
+
+  const handleStatusChange = async (taskId: string, currentStatus: string) => {
+    const newStatus = getNextStatus(currentStatus);
+    
+    try {
+      const { error } = await supabase
+        .from("consultant_tasks")
+        .update({ status: newStatus })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["consultant_tasks"] });
+      
+      toast({
+        title: "Success",
+        description: `Task status updated to ${newStatus}`,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update task status",
+      });
+    }
   };
 
   return (
@@ -162,7 +198,11 @@ const EngagedConsultantCardWithDialog = ({
                       <div className="flex items-center gap-2 mt-2">
                         <Badge 
                           variant="secondary"
-                          className={getTaskStatusColor(task.status)}
+                          className={`${getTaskStatusColor(task.status)} cursor-pointer hover:opacity-80`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStatusChange(task.id, task.status);
+                          }}
                         >
                           {task.status}
                         </Badge>

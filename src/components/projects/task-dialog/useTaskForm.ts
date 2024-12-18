@@ -32,7 +32,7 @@ export const useTaskForm = ({ projectConsultantId, task, onSuccess }: UseTaskFor
       title: task?.title || "",
       description: task?.description || "",
       due_date: task?.due_date ? task.due_date.split('T')[0] : "",
-      status: (task?.status as "Todo" | "In Progress" | "Completed") || "Todo",
+      status: (task?.status as "Pending Input" | "In Progress" | "Completed") || "Pending Input",
     },
   });
 
