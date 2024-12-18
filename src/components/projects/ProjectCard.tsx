@@ -22,6 +22,7 @@ interface ProjectCardProps {
   project: {
     id: string;
     name: string;
+    description?: string;
     client_name: string;
     client_contact: string;
     client_email: string;
@@ -55,7 +56,7 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start">
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
             {project.status}
           </span>
@@ -93,6 +94,9 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
           </div>
         </div>
         <CardTitle>{project.name}</CardTitle>
+        {project.description && (
+          <p className="text-sm text-muted-foreground mt-2">{project.description}</p>
+        )}
       </CardHeader>
       <CardContent>
         <dl className="space-y-2 text-sm">

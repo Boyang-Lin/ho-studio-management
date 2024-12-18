@@ -13,6 +13,7 @@ import ProjectFormFields from "./ProjectFormFields";
 
 const formSchema = z.object({
   name: z.string().min(1, "Project name is required"),
+  description: z.string().optional(),
   client_name: z.string().min(1, "Client name is required"),
   client_contact: z.string().min(1, "Contact number is required"),
   client_email: z.string().email("Invalid email address"),
@@ -37,6 +38,7 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: project?.name || "",
+      description: project?.description || "",
       client_name: project?.client_name || "",
       client_contact: project?.client_contact || "",
       client_email: project?.client_email || "",

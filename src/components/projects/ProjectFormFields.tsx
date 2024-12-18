@@ -1,5 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Control } from "react-hook-form";
 import { ProjectFormValues } from "@/types/project";
 import ProjectStatusSelect from "./ProjectStatusSelect";
@@ -19,6 +20,24 @@ const ProjectFormFields = ({ control }: ProjectFormFieldsProps) => {
             <FormLabel>Project Name</FormLabel>
             <FormControl>
               <Input placeholder="Enter project name" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Description</FormLabel>
+            <FormControl>
+              <Textarea 
+                placeholder="Enter project description" 
+                className="resize-none" 
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

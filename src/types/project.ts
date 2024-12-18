@@ -1,6 +1,7 @@
 export interface Project {
   id: string;
   name: string;
+  description?: string;
   client_name: string;
   client_contact: string;
   client_email: string;
