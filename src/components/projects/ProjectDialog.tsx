@@ -17,6 +17,7 @@ interface ProjectDialogProps {
     client_email: string;
     estimated_cost: number;
     status: string;
+    user_id: string;
   };
 }
 
