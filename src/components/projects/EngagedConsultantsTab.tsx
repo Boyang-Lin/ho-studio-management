@@ -16,20 +16,21 @@ interface EngagedConsultantsTabProps {
   }>;
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "Fee Proposal Signed":
+      return "bg-green-100 text-green-800 hover:bg-green-100";
+    case "Pending Approval":
+      return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
+    case "Fee Proposal Received":
+    default:
+      return "bg-blue-100 text-blue-800 hover:bg-blue-100";
+  }
+};
+
 const EngagedConsultantsTab = ({
   projectConsultants,
 }: EngagedConsultantsTabProps) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Signed":
-        return "default";
-      case "Sent to client":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {projectConsultants.map((pc) => (
@@ -56,7 +57,7 @@ const EngagedConsultantsTab = ({
                     ${pc.quote.toLocaleString()}
                   </dd>
                 </div>
-                <Badge variant={getStatusColor(pc.quote_status)}>
+                <Badge className={`${getStatusColor(pc.quote_status)} font-medium`}>
                   {pc.quote_status}
                 </Badge>
               </div>
