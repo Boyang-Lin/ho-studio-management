@@ -39,12 +39,16 @@ const Index = () => {
   const { data: consultantGroups, refetch: refetchConsultantGroups } = useQuery({
     queryKey: ["consultant_groups"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: groups, error: groupsError } = await supabase
         .from("consultant_groups")
-        .select("*, consultants(*)");
+        .select("*, consultants:consultant_group_memberships(consultant:consultants(*))");
 
-      if (error) throw error;
-      return data;
+      if (groupsError) throw groupsError;
+
+      return groups.map(group => ({
+        ...group,
+        consultants: group.consultants.map((membership: any) => membership.consultant)
+      }));
     },
   });
 

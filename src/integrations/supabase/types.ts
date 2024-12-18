@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      consultant_group_memberships: {
+        Row: {
+          consultant_id: string
+          created_at: string
+          group_id: string
+        }
+        Insert: {
+          consultant_id: string
+          created_at?: string
+          group_id: string
+        }
+        Update: {
+          consultant_id?: string
+          created_at?: string
+          group_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultant_group_memberships_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultant_group_memberships_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "consultant_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultant_groups: {
         Row: {
           created_at: string
@@ -35,7 +68,6 @@ export type Database = {
           company_name: string | null
           created_at: string
           email: string
-          group_id: string | null
           id: string
           name: string
           phone: string | null
@@ -46,7 +78,6 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           email: string
-          group_id?: string | null
           id?: string
           name: string
           phone?: string | null
@@ -57,22 +88,13 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           email?: string
-          group_id?: string | null
           id?: string
           name?: string
           phone?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "consultants_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "consultant_groups"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {

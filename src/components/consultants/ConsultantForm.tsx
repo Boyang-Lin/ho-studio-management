@@ -15,7 +15,7 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
   company_name: z.string().optional(),
-  group_id: z.string().optional(),
+  group_ids: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -27,7 +27,7 @@ interface ConsultantFormProps {
     email: string;
     phone?: string;
     company_name?: string;
-    group_id?: string;
+    group_ids?: string[];
   };
   groups: {
     id: string;
@@ -48,7 +48,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
       email: consultant?.email || "",
       phone: consultant?.phone || "",
       company_name: consultant?.company_name || "",
-      group_id: consultant?.group_id || "",
+      group_ids: consultant?.group_ids || [],
     },
   });
 
@@ -59,37 +59,75 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
       if (!user) throw new Error("No user found");
 
       if (consultant) {
-        const { error } = await supabase
+        // Update existing consultant
+        const { error: consultantError } = await supabase
           .from("consultants")
           .update({
             name: values.name,
             email: values.email,
             phone: values.phone,
             company_name: values.company_name,
-            group_id: values.group_id || null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", consultant.id);
 
-        if (error) throw error;
+        if (consultantError) throw consultantError;
+
+        // Delete existing group memberships
+        const { error: deleteError } = await supabase
+          .from("consultant_group_memberships")
+          .delete()
+          .eq("consultant_id", consultant.id);
+
+        if (deleteError) throw deleteError;
+
+        // Insert new group memberships
+        if (values.group_ids && values.group_ids.length > 0) {
+          const { error: membershipError } = await supabase
+            .from("consultant_group_memberships")
+            .insert(
+              values.group_ids.map(groupId => ({
+                consultant_id: consultant.id,
+                group_id: groupId,
+              }))
+            );
+
+          if (membershipError) throw membershipError;
+        }
 
         toast({
           title: "Success",
           description: "Consultant updated successfully",
         });
       } else {
-        const { error } = await supabase
+        // Create new consultant
+        const { data: newConsultant, error: consultantError } = await supabase
           .from("consultants")
           .insert({
             name: values.name,
             email: values.email,
             phone: values.phone,
             company_name: values.company_name,
-            group_id: values.group_id || null,
             user_id: user.id,
-          });
+          })
+          .select()
+          .single();
 
-        if (error) throw error;
+        if (consultantError) throw consultantError;
+
+        // Insert group memberships
+        if (values.group_ids && values.group_ids.length > 0) {
+          const { error: membershipError } = await supabase
+            .from("consultant_group_memberships")
+            .insert(
+              values.group_ids.map(groupId => ({
+                consultant_id: newConsultant.id,
+                group_id: groupId,
+              }))
+            );
+
+          if (membershipError) throw membershipError;
+        }
 
         toast({
           title: "Success",
@@ -97,7 +135,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ["consultants"] });
+      queryClient.invalidateQueries({ queryKey: ["consultant_groups"] });
       onClose();
     } catch (error) {
       console.error("Error:", error);
