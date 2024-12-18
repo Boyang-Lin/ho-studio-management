@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 import { Button } from "@/components/ui/button";
-import { Plus, User, Building2, Mail, Pencil } from "lucide-react";
+import { Plus, User, Building2, Mail } from "lucide-react";
 import TaskDialog from "@/components/projects/TaskDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { TaskListItem } from "./task/TaskListItem";
 
 interface EngagedConsultantCardWithDialogProps {
   projectConsultant: {
@@ -83,6 +83,31 @@ const EngagedConsultantCardWithDialog = ({
     setTaskDialogOpen(true);
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from("consultant_tasks")
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["consultant_tasks"] });
+      
+      toast({
+        title: "Success",
+        description: "Task deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete task",
+      });
+    }
+  };
+
   const handleStatusChange = async (taskId: string, currentStatus: string) => {
     const newStatus = getNextStatus(currentStatus);
     
@@ -132,21 +157,6 @@ const EngagedConsultantCardWithDialog = ({
             <span>{projectConsultant.consultant.email}</span>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {projectConsultant.quote && (
-              <div>
-                <p className="text-sm text-muted-foreground">Quote Amount</p>
-                <p className="text-2xl font-bold">
-                  ${projectConsultant.quote.toLocaleString()}
-                </p>
-              </div>
-            )}
-            <Badge className={`${getStatusColor(projectConsultant.quote_status)}`}>
-              {projectConsultant.quote_status}
-            </Badge>
-          </div>
-        </CardContent>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -174,45 +184,14 @@ const EngagedConsultantCardWithDialog = ({
                   <p className="text-sm text-muted-foreground">No tasks yet</p>
                 ) : (
                   tasks.map((task) => (
-                    <div 
-                      key={task.id} 
-                      className="p-4 rounded-lg border bg-card text-card-foreground relative group"
-                    >
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditTask(task);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <h4 className="font-medium">{task.title}</h4>
-                      {task.description && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {task.description}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge 
-                          variant="secondary"
-                          className={`${getTaskStatusColor(task.status)} cursor-pointer hover:opacity-80`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStatusChange(task.id, task.status);
-                          }}
-                        >
-                          {task.status}
-                        </Badge>
-                        {task.due_date && (
-                          <span className="text-sm text-muted-foreground">
-                            Due: {new Date(task.due_date).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    <TaskListItem
+                      key={task.id}
+                      task={task}
+                      onEdit={handleEditTask}
+                      onDelete={handleDeleteTask}
+                      onStatusChange={handleStatusChange}
+                      getTaskStatusColor={getTaskStatusColor}
+                    />
                   ))
                 )}
               </div>
