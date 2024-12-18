@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/Container";
 import { useToast } from "@/hooks/use-toast";
 import { CreditCard, Loader2, Users, UserCheck } from "lucide-react";
-import ConsultantGroup from "@/components/consultants/ConsultantGroup";
 import ProjectHeader from "@/components/projects/ProjectHeader";
 import ProjectInfo from "@/components/projects/ProjectInfo";
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProjectConsultantCard from "@/components/projects/ProjectConsultantCard";
+import ConsultantGroupsTab from "@/components/projects/ConsultantGroupsTab";
+import EngagedConsultantsTab from "@/components/projects/EngagedConsultantsTab";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -145,8 +145,6 @@ const ProjectDetails = () => {
     );
   }
 
-  const assignedConsultantIds = projectConsultants.map(pc => pc.consultant_id);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Container className="py-8 space-y-8">
@@ -173,33 +171,24 @@ const ProjectDetails = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all-consultants" className="space-y-6">
-            <div className="space-y-6">
-              {consultantGroups?.map((group) => (
-                <ConsultantGroup
-                  key={group.id}
-                  group={group}
-                  variant="selection"
-                  onAssignConsultant={handleAssignConsultant}
-                  assignedConsultantIds={assignedConsultantIds}
-                  projectConsultants={projectConsultants}
-                />
-              ))}
-            </div>
+          <TabsContent value="all-consultants">
+            <ConsultantGroupsTab
+              consultantGroups={consultantGroups}
+              projectConsultants={projectConsultants}
+              onAssignConsultant={handleAssignConsultant}
+            />
           </TabsContent>
 
-          <TabsContent value="engaged-consultants" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {projectConsultants.map((pc) => (
-                <ProjectConsultantCard
-                  key={pc.id}
-                  projectConsultant={pc}
-                />
-              ))}
-            </div>
+          <TabsContent value="engaged-consultants">
+            <ConsultantGroupsTab
+              consultantGroups={consultantGroups}
+              projectConsultants={projectConsultants}
+              onAssignConsultant={handleAssignConsultant}
+              filterAssignedOnly
+            />
           </TabsContent>
 
-          <TabsContent value="invoices" className="space-y-6">
+          <TabsContent value="invoices">
             <div className="text-center text-muted-foreground">
               <p>Invoices and payment features coming soon</p>
             </div>
