@@ -172,6 +172,7 @@ const ProjectDetails = () => {
                 variant="selection"
                 onAssignConsultant={handleAssignConsultant}
                 assignedConsultantIds={assignedConsultantIds}
+                projectConsultants={projectConsultants}
               />
             ))}
           </div>

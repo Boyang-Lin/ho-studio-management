@@ -34,6 +34,12 @@ interface ConsultantGroupProps {
   onAssignConsultant?: (consultant: any) => void;
   assignedConsultantIds?: string[];
   variant?: 'default' | 'selection';
+  projectConsultants?: Array<{
+    id: string;
+    consultant_id: string;
+    quote?: number | null;
+    quote_status: string;
+  }>;
 }
 
 const ConsultantGroup = ({
@@ -45,6 +51,7 @@ const ConsultantGroup = ({
   onAssignConsultant,
   assignedConsultantIds = [],
   variant = 'default',
+  projectConsultants = [],
 }: ConsultantGroupProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const isSelectionVariant = variant === 'selection';
@@ -104,17 +111,23 @@ const ConsultantGroup = ({
       {isExpanded && (
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {group.consultants?.map((consultant) => (
-              <ConsultantCard
-                key={consultant.id}
-                consultant={consultant}
-                onEdit={onEditConsultant}
-                onDelete={onDeleteConsultant}
-                onAssign={onAssignConsultant}
-                isAssigned={assignedConsultantIds.includes(consultant.id)}
-                variant={variant}
-              />
-            ))}
+            {group.consultants?.map((consultant) => {
+              const projectConsultant = projectConsultants.find(
+                pc => pc.consultant_id === consultant.id
+              );
+              return (
+                <ConsultantCard
+                  key={consultant.id}
+                  consultant={consultant}
+                  onEdit={onEditConsultant}
+                  onDelete={onDeleteConsultant}
+                  onAssign={onAssignConsultant}
+                  isAssigned={assignedConsultantIds.includes(consultant.id)}
+                  variant={variant}
+                  projectConsultant={projectConsultant}
+                />
+              );
+            })}
           </div>
         </CardContent>
       )}
