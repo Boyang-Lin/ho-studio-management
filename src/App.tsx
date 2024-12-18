@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import ProjectDetails from "./pages/ProjectDetails";
+import ConsultantDetails from "./pages/ConsultantDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ProjectDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/project/:projectId/consultant/:consultantId"
+            element={
+              <ProtectedRoute>
+                <ConsultantDetails />
               </ProtectedRoute>
             }
           />
