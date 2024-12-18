@@ -3,7 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
-import { User, Building2, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus, User, Building2, Mail } from "lucide-react";
+import TaskDialog from "@/components/projects/TaskDialog";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EngagedConsultantCardWithDialogProps {
   projectConsultant: {
@@ -36,6 +40,21 @@ const EngagedConsultantCardWithDialog = ({
   projectConsultant,
 }: EngagedConsultantCardWithDialogProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+
+  const { data: tasks = [] } = useQuery({
+    queryKey: ["consultant_tasks", projectConsultant.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("consultant_tasks")
+        .select("*")
+        .eq("project_consultant_id", projectConsultant.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   return (
     <>
@@ -83,10 +102,53 @@ const EngagedConsultantCardWithDialog = ({
           </DialogHeader>
           <div className="space-y-6">
             <ConsultantPaymentInfo projectConsultant={projectConsultant} />
-            {/* Tasks section can be added here */}
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Tasks</h3>
+                <Button onClick={() => setTaskDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Task
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {tasks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No tasks yet</p>
+                ) : (
+                  tasks.map((task) => (
+                    <div 
+                      key={task.id} 
+                      className="p-4 rounded-lg border bg-card text-card-foreground"
+                    >
+                      <h4 className="font-medium">{task.title}</h4>
+                      {task.description && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {task.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="secondary">{task.status}</Badge>
+                        {task.due_date && (
+                          <span className="text-sm text-muted-foreground">
+                            Due: {new Date(task.due_date).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      <TaskDialog
+        open={taskDialogOpen}
+        onOpenChange={setTaskDialogOpen}
+        projectConsultantId={projectConsultant.id}
+      />
     </>
   );
 };
