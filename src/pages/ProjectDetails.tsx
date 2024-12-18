@@ -3,16 +3,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/Container";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { CreditCard, Loader2, Users, UserCheck } from "lucide-react";
 import ConsultantGroup from "@/components/consultants/ConsultantGroup";
 import ProjectHeader from "@/components/projects/ProjectHeader";
 import ProjectInfo from "@/components/projects/ProjectInfo";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProjectConsultantCard from "@/components/projects/ProjectConsultantCard";
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("all-consultants");
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ["project", id],
@@ -61,19 +64,17 @@ const ProjectDetails = () => {
   });
 
   useEffect(() => {
-    // Subscribe to changes in project_consultants table
     const channel = supabase
       .channel('project_consultants_changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'project_consultants',
-          filter: `project_id=eq.${id}` // Only listen to changes for this project
+          filter: `project_id=eq.${id}`
         },
-        (payload) => {
-          // Invalidate and refetch the project_consultants query
+        () => {
           queryClient.invalidateQueries({
             queryKey: ["project_consultants", id],
           });
@@ -81,7 +82,6 @@ const ProjectDetails = () => {
       )
       .subscribe();
 
-    // Cleanup subscription on unmount
     return () => {
       supabase.removeChannel(channel);
     };
@@ -92,7 +92,6 @@ const ProjectDetails = () => {
     
     try {
       if (isAssigned) {
-        // Remove consultant
         const { error } = await supabase
           .from("project_consultants")
           .delete()
@@ -106,7 +105,6 @@ const ProjectDetails = () => {
           description: "Consultant removed successfully",
         });
       } else {
-        // Assign consultant
         const { error } = await supabase
           .from("project_consultants")
           .insert({
@@ -153,30 +151,60 @@ const ProjectDetails = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Container className="py-8 space-y-8">
         <div className="space-y-6">
-          <ProjectHeader 
-            projectName={project.name}
-          />
-
+          <ProjectHeader projectName={project.name} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <ProjectInfo project={project} />
           </div>
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">All Consultants</h2>
-          <div className="space-y-6">
-            {consultantGroups?.map((group) => (
-              <ConsultantGroup
-                key={group.id}
-                group={group}
-                variant="selection"
-                onAssignConsultant={handleAssignConsultant}
-                assignedConsultantIds={assignedConsultantIds}
-                projectConsultants={projectConsultants}
-              />
-            ))}
-          </div>
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="all-consultants" className="space-x-2">
+              <Users className="h-4 w-4" />
+              <span>All Consultants</span>
+            </TabsTrigger>
+            <TabsTrigger value="engaged-consultants" className="space-x-2">
+              <UserCheck className="h-4 w-4" />
+              <span>Engaged Consultants</span>
+            </TabsTrigger>
+            <TabsTrigger value="invoices" className="space-x-2">
+              <CreditCard className="h-4 w-4" />
+              <span>Invoices & Payment</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all-consultants" className="space-y-6">
+            <div className="space-y-6">
+              {consultantGroups?.map((group) => (
+                <ConsultantGroup
+                  key={group.id}
+                  group={group}
+                  variant="selection"
+                  onAssignConsultant={handleAssignConsultant}
+                  assignedConsultantIds={assignedConsultantIds}
+                  projectConsultants={projectConsultants}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="engaged-consultants" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {projectConsultants.map((pc) => (
+                <ProjectConsultantCard
+                  key={pc.id}
+                  projectConsultant={pc}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="invoices" className="space-y-6">
+            <div className="text-center text-muted-foreground">
+              <p>Invoices and payment features coming soon</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </Container>
     </div>
   );
