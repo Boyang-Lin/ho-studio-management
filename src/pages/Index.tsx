@@ -18,11 +18,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import ProjectDialog from "@/components/projects/ProjectDialog";
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"projects" | "consultants">("projects");
+  const [projectDialogOpen, setProjectDialogOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const { data: projects, refetch: refetchProjects } = useQuery({
     queryKey: ["projects"],
@@ -73,6 +76,16 @@ const Index = () => {
     refetchProjects();
   };
 
+  const handleEditProject = (project: any) => {
+    setSelectedProject(project);
+    setProjectDialogOpen(true);
+  };
+
+  const handleCloseProjectDialog = () => {
+    setSelectedProject(null);
+    setProjectDialogOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <header className="border-b bg-white/50 backdrop-blur-sm">
@@ -105,7 +118,7 @@ const Index = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Projects</h2>
-              <Button>
+              <Button onClick={() => setProjectDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
               </Button>
@@ -115,7 +128,11 @@ const Index = () => {
                 <Card key={project.id}>
                   <CardHeader className="relative">
                     <div className="absolute top-4 right-4 flex space-x-2">
-                      <Button variant="ghost" size="icon">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditProject(project)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
@@ -220,6 +237,12 @@ const Index = () => {
           </div>
         )}
       </Container>
+
+      <ProjectDialog
+        open={projectDialogOpen}
+        onOpenChange={handleCloseProjectDialog}
+        project={selectedProject}
+      />
     </div>
   );
 };
