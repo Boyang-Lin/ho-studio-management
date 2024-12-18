@@ -1,16 +1,16 @@
 import { useState } from "react";
 import Container from "@/components/Container";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import ProjectDialog from "@/components/projects/ProjectDialog";
 import ConsultantDialog from "@/components/consultants/ConsultantDialog";
 import ConsultantGroupDialog from "@/components/consultants/ConsultantGroupDialog";
-import ProjectCard from "@/components/projects/ProjectCard";
-import ConsultantGroup from "@/components/consultants/ConsultantGroup";
+import ProjectList from "@/components/projects/ProjectList";
+import ConsultantList from "@/components/consultants/ConsultantList";
+import Header from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -146,15 +146,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <header className="border-b bg-white/50 backdrop-blur-sm">
-        <Container className="flex items-center justify-between h-16">
-          <h1 className="text-xl font-semibold">HO Studio Management</h1>
-          <Button variant="ghost" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-        </Container>
-      </header>
+      <Header onLogout={handleLogout} />
 
       <Container className="py-8">
         <div className="flex space-x-4 mb-6">
@@ -173,53 +165,22 @@ const Index = () => {
         </div>
 
         {activeTab === "projects" ? (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Projects</h2>
-              <Button onClick={() => setProjectDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                New Project
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects?.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  onEdit={handleEditProject}
-                  onDelete={handleDeleteProject}
-                />
-              ))}
-            </div>
-          </div>
+          <ProjectList
+            projects={projects}
+            onEdit={handleEditProject}
+            onDelete={handleDeleteProject}
+            onNew={() => setProjectDialogOpen(true)}
+          />
         ) : (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Consultants</h2>
-              <div className="space-x-2">
-                <Button variant="outline" onClick={() => setGroupDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Group
-                </Button>
-                <Button onClick={() => setConsultantDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Consultant
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-6">
-              {consultantGroups?.map((group) => (
-                <ConsultantGroup
-                  key={group.id}
-                  group={group}
-                  onEditGroup={handleEditGroup}
-                  onDeleteGroup={handleDeleteGroup}
-                  onEditConsultant={handleEditConsultant}
-                  onDeleteConsultant={handleDeleteConsultant}
-                />
-              ))}
-            </div>
-          </div>
+          <ConsultantList
+            consultantGroups={consultantGroups}
+            onEditGroup={handleEditGroup}
+            onDeleteGroup={handleDeleteGroup}
+            onEditConsultant={handleEditConsultant}
+            onDeleteConsultant={handleDeleteConsultant}
+            onNewGroup={() => setGroupDialogOpen(true)}
+            onNewConsultant={() => setConsultantDialogOpen(true)}
+          />
         )}
       </Container>
 
