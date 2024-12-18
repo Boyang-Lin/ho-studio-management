@@ -39,6 +39,9 @@ interface ConsultantGroupProps {
     consultant_id: string;
     quote?: number | null;
     quote_status: string;
+    consultant: {
+      name: string;
+    };
   }>;
 }
 
@@ -115,6 +118,15 @@ const ConsultantGroup = ({
               const projectConsultant = projectConsultants.find(
                 pc => pc.consultant_id === consultant.id
               );
+              
+              // Transform the projectConsultant to include the consultant name
+              const transformedProjectConsultant = projectConsultant ? {
+                ...projectConsultant,
+                consultant: {
+                  name: consultant.name
+                }
+              } : undefined;
+
               return (
                 <ConsultantCard
                   key={consultant.id}
@@ -124,7 +136,7 @@ const ConsultantGroup = ({
                   onAssign={onAssignConsultant}
                   isAssigned={assignedConsultantIds.includes(consultant.id)}
                   variant={variant}
-                  projectConsultant={projectConsultant}
+                  projectConsultant={transformedProjectConsultant}
                 />
               );
             })}
