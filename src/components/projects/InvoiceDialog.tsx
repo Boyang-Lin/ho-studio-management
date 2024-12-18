@@ -26,7 +26,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 interface InvoiceDialogProps {
@@ -54,24 +54,44 @@ const InvoiceDialog = ({
 
   const form = useForm({
     defaultValues: {
-      project_consultant_id: invoice?.project_consultant_id || "",
-      amount: invoice?.amount || "",
-      invoice_number: invoice?.invoice_number || "",
-      due_date: invoice?.due_date ? new Date(invoice.due_date).toISOString().split('T')[0] : "",
-      status: invoice?.status || "Pending",
-      notes: invoice?.notes || "",
+      project_consultant_id: "",
+      amount: "",
+      invoice_number: "",
+      due_date: "",
+      status: "Pending",
+      notes: "",
     },
   });
+
+  // Reset form with invoice data when editing
+  useEffect(() => {
+    if (invoice) {
+      form.reset({
+        project_consultant_id: invoice.project_consultant_id,
+        amount: invoice.amount,
+        invoice_number: invoice.invoice_number || "",
+        due_date: invoice.due_date ? new Date(invoice.due_date).toISOString().split('T')[0] : "",
+        status: invoice.status,
+        notes: invoice.notes || "",
+      });
+    } else {
+      form.reset({
+        project_consultant_id: "",
+        amount: "",
+        invoice_number: "",
+        due_date: "",
+        status: "Pending",
+        notes: "",
+      });
+    }
+  }, [invoice, form]);
 
   const onSubmit = async (values: any) => {
     setIsSubmitting(true);
     try {
-      // Prepare the data, ensuring dates are properly formatted
       const formattedData = {
         ...values,
-        // Only include due_date if it's not empty
         due_date: values.due_date ? new Date(values.due_date).toISOString() : null,
-        // Set invoice_date to current timestamp for new invoices
         invoice_date: invoice?.invoice_date || new Date().toISOString(),
       };
 
