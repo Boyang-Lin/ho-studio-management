@@ -2,25 +2,15 @@ import { useState } from "react";
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Plus, Pencil, Trash2 } from "lucide-react";
+import { LogOut, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import ProjectDialog from "@/components/projects/ProjectDialog";
 import ConsultantDialog from "@/components/consultants/ConsultantDialog";
 import ConsultantGroupDialog from "@/components/consultants/ConsultantGroupDialog";
+import ProjectCard from "@/components/projects/ProjectCard";
+import ConsultantGroup from "@/components/consultants/ConsultantGroup";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -189,63 +179,12 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects?.map((project) => (
-                <Card key={project.id}>
-                  <CardHeader className="relative">
-                    <div className="absolute top-4 right-4 flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditProject(project)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete this project? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteProject(project.id)}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                    <CardTitle>{project.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <dl className="space-y-2 text-sm">
-                      <div>
-                        <dt className="text-muted-foreground">Client Name</dt>
-                        <dd>{project.client_name}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-muted-foreground">Contact</dt>
-                        <dd>{project.client_contact}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-muted-foreground">Email</dt>
-                        <dd>{project.client_email}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-muted-foreground">Estimated Cost</dt>
-                        <dd>${project.estimated_cost.toLocaleString()}</dd>
-                      </div>
-                    </dl>
-                  </CardContent>
-                </Card>
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onEdit={handleEditProject}
+                  onDelete={handleDeleteProject}
+                />
               ))}
             </div>
           </div>
@@ -266,92 +205,14 @@ const Index = () => {
             </div>
             <div className="space-y-6">
               {consultantGroups?.map((group) => (
-                <Card key={group.id}>
-                  <CardHeader className="relative">
-                    <div className="absolute top-4 right-4 flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditGroup(group)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Group</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete this group? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteGroup(group.id)}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                    <CardTitle>{group.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="divide-y">
-                      {group.consultants?.map((consultant) => (
-                        <div
-                          key={consultant.id}
-                          className="py-3 flex justify-between items-center"
-                        >
-                          <div>
-                            <div className="font-medium">{consultant.name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {consultant.email}
-                            </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditConsultant(consultant)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Consultant</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete this consultant? This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDeleteConsultant(consultant.id)}
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <ConsultantGroup
+                  key={group.id}
+                  group={group}
+                  onEditGroup={handleEditGroup}
+                  onDeleteGroup={handleDeleteGroup}
+                  onEditConsultant={handleEditConsultant}
+                  onDeleteConsultant={handleDeleteConsultant}
+                />
               ))}
             </div>
           </div>

@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import ProjectStatusSelect from "./ProjectStatusSelect";
 
 const formSchema = z.object({
   name: z.string().min(1, "Project name is required"),
@@ -26,6 +27,7 @@ const formSchema = z.object({
     required_error: "Estimated cost is required",
     invalid_type_error: "Estimated cost must be a number",
   }).nonnegative("Cost must be a positive number"),
+  status: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -38,6 +40,7 @@ interface ProjectFormProps {
     client_contact: string;
     client_email: string;
     estimated_cost: number;
+    status: string;
   };
   onClose: () => void;
 }
@@ -55,6 +58,7 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
       client_contact: project?.client_contact || "",
       client_email: project?.client_email || "",
       estimated_cost: project?.estimated_cost || 0,
+      status: project?.status || "Design Stage",
     },
   });
 
@@ -62,7 +66,6 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
     setIsSubmitting(true);
     try {
       if (project) {
-        // Update existing project
         const { error } = await supabase
           .from("projects")
           .update({
@@ -78,17 +81,11 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
           description: "Project updated successfully",
         });
       } else {
-        // Create new project
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
-        // Ensure all required fields are present and properly typed
         const projectData = {
-          name: values.name,
-          client_name: values.client_name,
-          client_contact: values.client_contact,
-          client_email: values.client_email,
-          estimated_cost: values.estimated_cost,
+          ...values,
           user_id: user.id,
         };
 
@@ -196,6 +193,8 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
             </FormItem>
           )}
         />
+
+        <ProjectStatusSelect control={form.control} />
 
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onClose}>
