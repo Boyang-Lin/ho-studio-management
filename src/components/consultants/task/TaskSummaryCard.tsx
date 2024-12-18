@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,11 +90,12 @@ export const TaskSummaryCard = ({ projectConsultantId }: TaskSummaryCardProps) =
                     <h4 className="font-medium">{task.title}</h4>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Badge 
-                          className={`${getTaskStatusColor(task.status)} cursor-pointer hover:opacity-80`}
+                        <Button 
+                          variant="ghost" 
+                          className={`px-2 py-1 h-auto font-normal hover:bg-transparent ${getTaskStatusColor(task.status)}`}
                         >
                           {task.status}
-                        </Badge>
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         {statusOptions.map((status) => (
