@@ -42,12 +42,12 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (projectConsultant?.quote) {
-      setQuote(projectConsultant.quote.toString());
-      setOriginalQuote(projectConsultant.quote.toString());
+    if (projectConsultant) {
+      setQuote(projectConsultant.quote?.toString() || "");
+      setOriginalQuote(projectConsultant.quote?.toString() || "");
       setStatus(projectConsultant.quote_status);
     }
-  }, [projectConsultant?.quote, projectConsultant?.quote_status]);
+  }, [projectConsultant]);
 
   const hasQuoteChanged = quote !== originalQuote;
 
@@ -88,6 +88,41 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
     }
   };
 
+  const handleStatusChange = async (newStatus: string) => {
+    setStatus(newStatus);
+    if (projectConsultant) {
+      setIsSubmitting(true);
+      try {
+        const { error } = await supabase
+          .from("project_consultants")
+          .update({
+            quote_status: newStatus,
+          })
+          .eq("id", projectConsultant.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Status updated successfully",
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["project_consultants"],
+        });
+      } catch (error) {
+        console.error("Error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update status",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
@@ -109,7 +144,7 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
         </Button>
       </div>
       <div>
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={status} onValueChange={handleStatusChange}>
           <SelectTrigger className={`${getStatusColor(status)}`}>
             <SelectValue />
           </SelectTrigger>
