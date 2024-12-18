@@ -9,7 +9,7 @@ import ProjectInfo from "@/components/projects/ProjectInfo";
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConsultantGroupsTab from "@/components/projects/ConsultantGroupsTab";
-import EngagedConsultantsTab from "@/components/projects/EngagedConsultantsTab";
+import PaymentManagementTab from "@/components/projects/PaymentManagementTab";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -189,9 +189,10 @@ const ProjectDetails = () => {
           </TabsContent>
 
           <TabsContent value="invoices">
-            <div className="text-center text-muted-foreground">
-              <p>Invoices and payment features coming soon</p>
-            </div>
+            <PaymentManagementTab
+              projectId={id || ''}
+              projectConsultants={projectConsultants}
+            />
           </TabsContent>
         </Tabs>
       </Container>

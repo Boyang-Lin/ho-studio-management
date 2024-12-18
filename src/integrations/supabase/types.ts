@@ -63,6 +63,56 @@ export type Database = {
         }
         Relationships: []
       }
+      consultant_invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string | null
+          id: string
+          invoice_date: string
+          invoice_number: string | null
+          notes: string | null
+          payment_date: string | null
+          project_consultant_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          invoice_date?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_date?: string | null
+          project_consultant_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          invoice_date?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_date?: string | null
+          project_consultant_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultant_invoices_project_consultant_id_fkey"
+            columns: ["project_consultant_id"]
+            isOneToOne: false
+            referencedRelation: "project_consultants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultant_tasks: {
         Row: {
           created_at: string
