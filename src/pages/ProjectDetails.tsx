@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/Container";
 import { useToast } from "@/hooks/use-toast";
-import ProjectConsultantCard from "@/components/projects/ProjectConsultantCard";
 import { Loader2 } from "lucide-react";
 import ConsultantGroup from "@/components/consultants/ConsultantGroup";
 import ProjectHeader from "@/components/projects/ProjectHeader";
@@ -119,13 +118,6 @@ const ProjectDetails = () => {
     );
   }
 
-  const pendingConsultants = projectConsultants.filter(
-    (pc) => pc.quote_status === "Pending"
-  );
-  const approvedConsultants = projectConsultants.filter(
-    (pc) => pc.quote_status === "Approved"
-  );
-
   const assignedConsultantIds = projectConsultants.map(pc => pc.consultant_id);
 
   return (
@@ -138,32 +130,6 @@ const ProjectDetails = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <ProjectInfo project={project} />
-
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Pending Quotes</h2>
-                <div className="grid gap-4">
-                  {pendingConsultants.map((pc) => (
-                    <ProjectConsultantCard
-                      key={pc.id}
-                      projectConsultant={pc}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Assigned Consultants</h2>
-                <div className="grid gap-4">
-                  {approvedConsultants.map((pc) => (
-                    <ProjectConsultantCard
-                      key={pc.id}
-                      projectConsultant={pc}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
