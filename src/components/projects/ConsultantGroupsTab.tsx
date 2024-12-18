@@ -19,7 +19,11 @@ interface ConsultantGroupsTabProps {
     quote?: number | null;
     quote_status: string;
     consultant: {
+      id: string;
       name: string;
+      email: string;
+      phone?: string;
+      company_name?: string;
     };
   }>;
   onAssignConsultant: (consultant: any) => void;

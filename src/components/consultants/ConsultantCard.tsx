@@ -15,6 +15,14 @@ interface ConsultantCardProps {
   onAssign?: (consultant: any) => void;
   isAssigned?: boolean;
   variant?: 'default' | 'selection';
+  projectConsultant?: {
+    id: string;
+    quote?: number | null;
+    quote_status: string;
+    consultant: {
+      name: string;
+    };
+  };
 }
 
 const ConsultantCard = ({ 
@@ -24,6 +32,7 @@ const ConsultantCard = ({
   onAssign,
   isAssigned = false,
   variant = 'default',
+  projectConsultant,
 }: ConsultantCardProps) => {
   return (
     <Card className="bg-white group">

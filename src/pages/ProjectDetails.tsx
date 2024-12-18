@@ -38,7 +38,13 @@ const ProjectDetails = () => {
         .from("project_consultants")
         .select(`
           *,
-          consultant:consultants(*)
+          consultant:consultants(
+            id,
+            name,
+            email,
+            phone,
+            company_name
+          )
         `)
         .eq("project_id", id);
 
