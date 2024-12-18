@@ -62,7 +62,11 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
         const { error } = await supabase
           .from("consultants")
           .update({
-            ...values,
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            company_name: values.company_name,
+            group_id: values.group_id || null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", consultant.id);
@@ -74,14 +78,16 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
           description: "Consultant updated successfully",
         });
       } else {
-        const consultantData = {
-          ...values,
-          user_id: user.id,
-        };
-
         const { error } = await supabase
           .from("consultants")
-          .insert(consultantData);
+          .insert({
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            company_name: values.company_name,
+            group_id: values.group_id || null,
+            user_id: user.id,
+          });
 
         if (error) throw error;
 
