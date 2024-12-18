@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/Container";
 import { useToast } from "@/hooks/use-toast";
@@ -7,10 +7,12 @@ import { Loader2 } from "lucide-react";
 import ConsultantGroup from "@/components/consultants/ConsultantGroup";
 import ProjectHeader from "@/components/projects/ProjectHeader";
 import ProjectInfo from "@/components/projects/ProjectInfo";
+import { useEffect } from "react";
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ["project", id],
@@ -57,6 +59,33 @@ const ProjectDetails = () => {
       }));
     },
   });
+
+  useEffect(() => {
+    // Subscribe to changes in project_consultants table
+    const channel = supabase
+      .channel('project_consultants_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'project_consultants',
+          filter: `project_id=eq.${id}` // Only listen to changes for this project
+        },
+        () => {
+          // Invalidate and refetch the project_consultants query
+          queryClient.invalidateQueries({
+            queryKey: ["project_consultants", id],
+          });
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, queryClient]);
 
   const handleAssignConsultant = async (consultant: any) => {
     const isAssigned = projectConsultants.some(pc => pc.consultant_id === consultant.id);
