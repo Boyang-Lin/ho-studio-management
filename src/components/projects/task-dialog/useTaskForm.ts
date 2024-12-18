@@ -5,7 +5,7 @@ import { taskFormSchema } from "./TaskFormFields";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import * z from "zod";
+import { z } from "zod";
 
 type FormData = z.infer<typeof taskFormSchema>;
 
