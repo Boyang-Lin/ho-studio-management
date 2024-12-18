@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ConsultantInfo } from "./ConsultantInfo";
 import { QuoteInput } from "./QuoteInput";
+import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 
 interface ConsultantCardProps {
   consultant: {
@@ -37,6 +38,9 @@ interface ConsultantCardProps {
     id: string;
     quote?: number | null;
     quote_status: string;
+    consultant: {
+      name: string;
+    };
   };
 }
 
@@ -100,8 +104,9 @@ const ConsultantCard = ({
       </CardHeader>
       {projectConsultant && (
         <CardContent>
-          <div className="pt-4 border-t">
+          <div className="space-y-6">
             <QuoteInput projectConsultant={projectConsultant} />
+            <ConsultantPaymentInfo projectConsultant={projectConsultant} />
           </div>
         </CardContent>
       )}
