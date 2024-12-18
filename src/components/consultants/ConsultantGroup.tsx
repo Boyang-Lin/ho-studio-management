@@ -24,12 +24,16 @@ interface ConsultantGroupProps {
       name: string;
       email: string;
       phone?: string;
+      company_name?: string;
     }>;
   };
   onEditGroup: (group: any) => void;
   onDeleteGroup: (id: string) => void;
   onEditConsultant: (consultant: any) => void;
   onDeleteConsultant: (id: string) => void;
+  showAssignButton?: boolean;
+  onAssignConsultant?: (consultant: any) => void;
+  assignedConsultantIds?: string[];
 }
 
 const ConsultantGroup = ({
@@ -38,6 +42,9 @@ const ConsultantGroup = ({
   onDeleteGroup,
   onEditConsultant,
   onDeleteConsultant,
+  showAssignButton = false,
+  onAssignConsultant,
+  assignedConsultantIds = [],
 }: ConsultantGroupProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -100,6 +107,8 @@ const ConsultantGroup = ({
                 consultant={consultant}
                 onEdit={onEditConsultant}
                 onDelete={onDeleteConsultant}
+                showAssignButton={showAssignButton && !assignedConsultantIds.includes(consultant.id)}
+                onAssign={onAssignConsultant}
               />
             ))}
           </div>

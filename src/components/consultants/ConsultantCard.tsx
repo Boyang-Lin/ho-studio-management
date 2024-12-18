@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Pencil, Trash2, User } from "lucide-react";
+import { Pencil, Plus, Trash2, User } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,13 +28,30 @@ interface ConsultantCardProps {
   };
   onEdit: (consultant: any) => void;
   onDelete: (id: string) => void;
+  onAssign?: (consultant: any) => void;
+  showAssignButton?: boolean;
 }
 
-const ConsultantCard = ({ consultant, onEdit, onDelete }: ConsultantCardProps) => {
+const ConsultantCard = ({ 
+  consultant, 
+  onEdit, 
+  onDelete,
+  onAssign,
+  showAssignButton = false,
+}: ConsultantCardProps) => {
   return (
     <Card className="bg-white">
       <CardHeader className="relative">
         <div className="absolute top-4 right-4 flex space-x-2">
+          {showAssignButton && onAssign && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onAssign(consultant)}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

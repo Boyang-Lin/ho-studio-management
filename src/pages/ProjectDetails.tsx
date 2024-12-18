@@ -3,12 +3,13 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/Container";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ConsultantAssignmentDialog from "@/components/projects/ConsultantAssignmentDialog";
 import ProjectConsultantCard from "@/components/projects/ProjectConsultantCard";
 import { Loader2 } from "lucide-react";
 import ConsultantGroup from "@/components/consultants/ConsultantGroup";
+import ProjectHeader from "@/components/projects/ProjectHeader";
+import ProjectInfo from "@/components/projects/ProjectInfo";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -81,6 +82,31 @@ const ProjectDetails = () => {
     console.log("Delete group:", id);
   };
 
+  const handleAssignConsultant = async (consultant: any) => {
+    try {
+      const { error } = await supabase
+        .from("project_consultants")
+        .insert({
+          project_id: id,
+          consultant_id: consultant.id,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Consultant assigned successfully",
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to assign consultant",
+      });
+    }
+  };
+
   if (projectLoading || consultantsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -104,50 +130,20 @@ const ProjectDetails = () => {
     (pc) => pc.quote_status === "Approved"
   );
 
+  const assignedConsultantIds = projectConsultants.map(pc => pc.consultant_id);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Container className="py-8 space-y-8">
         {/* Project Details Section */}
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold">{project.name}</h1>
-            <Button onClick={() => setAssignmentDialogOpen(true)}>
-              Assign Consultant
-            </Button>
-          </div>
+          <ProjectHeader 
+            projectName={project.name}
+            onAssignClick={() => setAssignmentDialogOpen(true)}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Project Details</h2>
-              <dl className="space-y-2">
-                <div>
-                  <dt className="text-sm text-muted-foreground">Client</dt>
-                  <dd>{project.client_name}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-muted-foreground">Contact</dt>
-                  <dd>{project.client_contact}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-muted-foreground">Email</dt>
-                  <dd>{project.client_email}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-muted-foreground">Estimated Cost</dt>
-                  <dd>${project.estimated_cost.toLocaleString()}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-muted-foreground">Status</dt>
-                  <dd>{project.status}</dd>
-                </div>
-                {project.description && (
-                  <div>
-                    <dt className="text-sm text-muted-foreground">Description</dt>
-                    <dd>{project.description}</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
+            <ProjectInfo project={project} />
 
             <div className="space-y-6">
               <div className="space-y-4">
@@ -189,6 +185,9 @@ const ProjectDetails = () => {
                 onDeleteGroup={handleDeleteGroup}
                 onEditConsultant={handleEditConsultant}
                 onDeleteConsultant={handleDeleteConsultant}
+                showAssignButton={true}
+                onAssignConsultant={handleAssignConsultant}
+                assignedConsultantIds={assignedConsultantIds}
               />
             ))}
           </div>
