@@ -57,7 +57,7 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
 
   return (
     <Card
-      className="cursor-pointer transition-all hover:shadow-md"
+      className="cursor-pointer transition-all hover:shadow-md group"
       onClick={() => navigate(`/project/${project.id}`)}
     >
       <CardHeader>
@@ -69,7 +69,10 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
           >
             {project.status}
           </span>
-          <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+          <div 
+            className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <Button variant="ghost" size="icon" onClick={() => onEdit(project)}>
               <Pencil className="h-4 w-4" />
             </Button>

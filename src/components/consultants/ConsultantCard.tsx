@@ -56,7 +56,7 @@ const ConsultantCard = ({
   const isSelectionVariant = variant === 'selection';
 
   return (
-    <Card className="bg-white">
+    <Card className="bg-white group">
       <CardHeader className="relative">
         <div className="absolute top-4 right-4 flex space-x-2">
           {isSelectionVariant ? (
@@ -66,7 +66,7 @@ const ConsultantCard = ({
               aria-label={isAssigned ? "Remove consultant" : "Assign consultant"}
             />
           ) : (
-            <>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
               <Button
                 variant="ghost"
                 size="icon"
@@ -97,7 +97,7 @@ const ConsultantCard = ({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </>
+            </div>
           )}
         </div>
         <ConsultantInfo consultant={consultant} />

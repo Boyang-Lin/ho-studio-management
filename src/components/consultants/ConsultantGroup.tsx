@@ -60,10 +60,10 @@ const ConsultantGroup = ({
   const isSelectionVariant = variant === 'selection';
 
   return (
-    <Card>
+    <Card className="group">
       <CardHeader className="relative">
         {!isSelectionVariant && (
-          <div className="absolute top-4 right-4 flex space-x-2">
+          <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="icon"
@@ -119,7 +119,6 @@ const ConsultantGroup = ({
                 pc => pc.consultant_id === consultant.id
               );
               
-              // Transform the projectConsultant to include the consultant name
               const transformedProjectConsultant = projectConsultant ? {
                 ...projectConsultant,
                 consultant: {
