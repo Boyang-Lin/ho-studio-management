@@ -1,25 +1,8 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ConsultantInfo } from "./ConsultantInfo";
 import { QuoteInput } from "./QuoteInput";
 import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
+import { ConsultantCardActions } from "./ConsultantCardActions";
 
 interface ConsultantCardProps {
   consultant: {
@@ -53,52 +36,18 @@ const ConsultantCard = ({
   variant = 'default',
   projectConsultant,
 }: ConsultantCardProps) => {
-  const isSelectionVariant = variant === 'selection';
-
   return (
     <Card className="bg-white group">
       <CardHeader className="relative">
-        <div className="absolute top-4 right-4 flex space-x-2">
-          {isSelectionVariant ? (
-            <Checkbox
-              checked={isAssigned}
-              onCheckedChange={() => onAssign?.(consultant)}
-              aria-label={isAssigned ? "Remove consultant" : "Assign consultant"}
-            />
-          ) : (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onEdit?.(consultant)}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Consultant</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this consultant? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete?.(consultant.id)}
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          )}
+        <div className="absolute top-4 right-4">
+          <ConsultantCardActions
+            consultantId={consultant.id}
+            onEdit={() => onEdit?.(consultant)}
+            onDelete={onDelete}
+            onAssign={() => onAssign?.(consultant)}
+            isAssigned={isAssigned}
+            variant={variant}
+          />
         </div>
         <ConsultantInfo consultant={consultant} />
       </CardHeader>

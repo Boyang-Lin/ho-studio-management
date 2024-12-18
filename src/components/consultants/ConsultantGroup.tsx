@@ -1,19 +1,8 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import ConsultantCard from "./ConsultantCard";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ConsultantGroupActions } from "./ConsultantGroupActions";
+import { ConsultantGroupHeader } from "./ConsultantGroupHeader";
 
 interface ConsultantGroupProps {
   group: {
@@ -57,59 +46,21 @@ const ConsultantGroup = ({
   projectConsultants = [],
 }: ConsultantGroupProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const isSelectionVariant = variant === 'selection';
 
   return (
     <Card className="group">
       <CardHeader className="relative">
-        {!isSelectionVariant && (
-          <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEditGroup?.(group)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Group</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete this group? This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => onDeleteGroup?.(group.id)}
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        )}
-        <div className="flex items-center justify-between pr-24">
-          <CardTitle>{group.name}</CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+        <ConsultantGroupActions
+          group={group}
+          onEditGroup={onEditGroup}
+          onDeleteGroup={onDeleteGroup}
+          variant={variant}
+        />
+        <ConsultantGroupHeader
+          name={group.name}
+          isExpanded={isExpanded}
+          onToggleExpand={() => setIsExpanded(!isExpanded)}
+        />
       </CardHeader>
       {isExpanded && (
         <CardContent>
