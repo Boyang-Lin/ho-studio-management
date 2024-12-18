@@ -34,49 +34,40 @@ export const TaskSummaryCard = ({ projectConsultantId }: TaskSummaryCardProps) =
     },
   });
 
-  const tasksByStatus = tasks.reduce((acc: Record<string, number>, task) => {
-    acc[task.status] = (acc[task.status] || 0) + 1;
-    return acc;
-  }, {});
-
-  const totalTasks = tasks.length;
-  const completedTasks = tasksByStatus["Completed"] || 0;
-  const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const incompleteTasks = tasks.filter(task => task.status !== "Completed");
 
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="text-lg">Tasks Overview</CardTitle>
+        <CardTitle className="text-lg">Pending Tasks</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Progress</p>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                className="bg-green-600 h-2.5 rounded-full"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            <p className="text-sm mt-1">{progress}% Complete</p>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Status Breakdown</p>
-            <div className="space-y-1">
-              {Object.entries(tasksByStatus).map(([status, count]) => (
-                <div key={status} className="flex items-center justify-between">
-                  <Badge className={`${getTaskStatusColor(status)}`}>
-                    {status}
-                  </Badge>
-                  <span className="text-sm font-medium">{count}</span>
+          {incompleteTasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center">No pending tasks</p>
+          ) : (
+            <div className="space-y-3">
+              {incompleteTasks.map((task) => (
+                <div key={task.id} className="p-3 rounded-lg border bg-card">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium">{task.title}</h4>
+                    <Badge className={getTaskStatusColor(task.status)}>
+                      {task.status}
+                    </Badge>
+                  </div>
+                  {task.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {task.description}
+                    </p>
+                  )}
+                  {task.due_date && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Due: {new Date(task.due_date).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
-
-          {tasks.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center">No tasks yet</p>
           )}
         </div>
       </CardContent>

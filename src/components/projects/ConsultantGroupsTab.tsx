@@ -42,10 +42,8 @@ const ConsultantGroupsTab = ({
   const assignedConsultantIds = projectConsultants.map(pc => pc.consultant_id);
 
   if (filterAssignedOnly) {
-    // Create a map of consultants by their group
     const consultantsByGroup = new Map();
     
-    // Initialize groups
     consultantGroups.forEach(group => {
       consultantsByGroup.set(group.id, {
         ...group,
@@ -53,7 +51,6 @@ const ConsultantGroupsTab = ({
       });
     });
 
-    // Populate groups with assigned consultants
     projectConsultants.forEach(pc => {
       const consultant = pc.consultant;
       const group = consultantGroups.find(g => 
@@ -71,7 +68,6 @@ const ConsultantGroupsTab = ({
       }
     });
 
-    // Filter out empty groups
     const populatedGroups = Array.from(consultantsByGroup.values())
       .filter(group => group.consultants.length > 0);
 
@@ -80,15 +76,19 @@ const ConsultantGroupsTab = ({
         {populatedGroups.map(group => (
           <div key={group.id} className="space-y-4">
             <h3 className="text-lg font-semibold">{group.name}</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {group.consultants.map((consultant: any) => (
-                <div key={consultant.projectConsultant.id} className="grid grid-cols-2 gap-4">
-                  <EngagedConsultantCardWithDialog
-                    projectConsultant={consultant.projectConsultant}
-                  />
-                  <TaskSummaryCard
-                    projectConsultantId={consultant.projectConsultant.id}
-                  />
+                <div key={consultant.projectConsultant.id} className="grid grid-cols-3 gap-4">
+                  <div className="col-span-1">
+                    <EngagedConsultantCardWithDialog
+                      projectConsultant={consultant.projectConsultant}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <TaskSummaryCard
+                      projectConsultantId={consultant.projectConsultant.id}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
