@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 import { Button } from "@/components/ui/button";
-import { Plus, User, Building2, Mail } from "lucide-react";
+import { Plus } from "lucide-react";
 import TaskDialog from "@/components/projects/TaskDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TaskListItem } from "./task/TaskListItem";
+import { ConsultantContactInfo } from "./ConsultantContactInfo";
 
 interface EngagedConsultantCardWithDialogProps {
   projectConsultant: {
@@ -24,36 +25,6 @@ interface EngagedConsultantCardWithDialogProps {
     };
   };
 }
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Fee Proposal Signed":
-      return "bg-green-100 text-green-800";
-    case "Pending Approval":
-      return "bg-yellow-100 text-yellow-800";
-    case "Fee Proposal Received":
-    default:
-      return "bg-blue-100 text-blue-800";
-  }
-};
-
-const getTaskStatusColor = (status: string) => {
-  switch (status) {
-    case "Completed":
-      return "bg-green-100 text-green-800";
-    case "In Progress":
-      return "bg-blue-100 text-blue-800";
-    case "Pending Input":
-    default:
-      return "bg-yellow-100 text-yellow-800";
-  }
-};
-
-const getNextStatus = (currentStatus: string) => {
-  const statuses = ["Pending Input", "In Progress", "Completed"];
-  const currentIndex = statuses.indexOf(currentStatus);
-  return statuses[(currentIndex + 1) % statuses.length];
-};
 
 const EngagedConsultantCardWithDialog = ({
   projectConsultant,
@@ -109,7 +80,9 @@ const EngagedConsultantCardWithDialog = ({
   };
 
   const handleStatusChange = async (taskId: string, currentStatus: string) => {
-    const newStatus = getNextStatus(currentStatus);
+    const statuses = ["Pending Input", "In Progress", "Completed"];
+    const currentIndex = statuses.indexOf(currentStatus);
+    const newStatus = statuses[(currentIndex + 1) % statuses.length];
     
     try {
       const { error } = await supabase
@@ -142,20 +115,7 @@ const EngagedConsultantCardWithDialog = ({
         onClick={() => setDialogOpen(true)}
       >
         <CardHeader>
-          <div className="flex items-center space-x-2">
-            <User className="h-5 w-5 text-muted-foreground" />
-            <CardTitle className="text-lg">{projectConsultant.consultant.name}</CardTitle>
-          </div>
-          {projectConsultant.consultant.company_name && (
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Building2 className="h-4 w-4" />
-              <span>{projectConsultant.consultant.company_name}</span>
-            </div>
-          )}
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Mail className="h-4 w-4" />
-            <span>{projectConsultant.consultant.email}</span>
-          </div>
+          <ConsultantContactInfo consultant={projectConsultant.consultant} />
         </CardHeader>
       </Card>
 
@@ -208,6 +168,18 @@ const EngagedConsultantCardWithDialog = ({
       />
     </>
   );
+};
+
+const getTaskStatusColor = (status: string) => {
+  switch (status) {
+    case "Completed":
+      return "bg-green-100 text-green-800";
+    case "In Progress":
+      return "bg-blue-100 text-blue-800";
+    case "Pending Input":
+    default:
+      return "bg-yellow-100 text-yellow-800";
+  }
 };
 
 export default EngagedConsultantCardWithDialog;
