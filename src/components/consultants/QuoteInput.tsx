@@ -96,6 +96,20 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
           {originalQuote ? "Update" : "Submit"}
         </Button>
       </div>
+      <div>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            {QUOTE_STATUS_OPTIONS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };
