@@ -103,6 +103,7 @@ export const TaskSummaryCard = ({ projectConsultantId }: TaskSummaryCardProps) =
                             key={status}
                             onClick={() => handleStatusChange(task.id, status)}
                             className="cursor-pointer"
+                            textValue={status}
                           >
                             {status}
                           </DropdownMenuItem>
