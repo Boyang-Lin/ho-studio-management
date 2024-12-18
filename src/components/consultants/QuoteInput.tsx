@@ -110,8 +110,8 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
       </div>
       <div>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
+          <SelectTrigger className={`${getStatusColor(status)}`}>
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {QUOTE_STATUS_OPTIONS.map((option) => (
