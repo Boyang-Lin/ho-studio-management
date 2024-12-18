@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ProjectHeaderProps {
   projectName: string;
-  onAssignClick: () => void;
 }
 
-const ProjectHeader = ({ projectName, onAssignClick }: ProjectHeaderProps) => {
+const ProjectHeader = ({ projectName }: ProjectHeaderProps) => {
   const navigate = useNavigate();
 
   return (
@@ -22,10 +21,6 @@ const ProjectHeader = ({ projectName, onAssignClick }: ProjectHeaderProps) => {
         </Button>
         <h1 className="text-3xl font-bold">{projectName}</h1>
       </div>
-      <Button onClick={onAssignClick}>
-        <Plus className="h-4 w-4 mr-2" />
-        Assign Consultant
-      </Button>
     </div>
   );
 };
