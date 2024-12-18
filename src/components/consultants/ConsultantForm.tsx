@@ -63,6 +63,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
         const { error: consultantError } = await supabase
           .from("consultants")
           .update({
+            id: consultant.id, // Include id in the update
             name: values.name,
             email: values.email,
             phone: values.phone,
@@ -98,18 +99,18 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
           description: "Consultant updated successfully",
         });
       } else {
-        // Create new consultant
-        const { data: newConsultant, error: consultantError } = await supabase
+        // Create new consultant with generated UUID
+        const newConsultantId = crypto.randomUUID();
+        const { error: consultantError } = await supabase
           .from("consultants")
           .insert({
+            id: newConsultantId,
             name: values.name,
             email: values.email,
             phone: values.phone,
             company_name: values.company_name,
             user_id: user.id,
-          })
-          .select()
-          .single();
+          });
 
         if (consultantError) throw consultantError;
 
@@ -118,7 +119,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
           const { error: membershipError } = await supabase
             .from("consultant_group_memberships")
             .insert({
-              consultant_id: newConsultant.id,
+              consultant_id: newConsultantId,
               group_id: values.group_id,
             });
 
