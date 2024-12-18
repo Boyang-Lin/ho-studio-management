@@ -168,6 +168,7 @@ export type Database = {
         Row: {
           consultant_id: string
           created_at: string
+          fee_proposal_status: string | null
           id: string
           project_id: string
           quote: number | null
@@ -177,6 +178,7 @@ export type Database = {
         Insert: {
           consultant_id: string
           created_at?: string
+          fee_proposal_status?: string | null
           id?: string
           project_id: string
           quote?: number | null
@@ -186,6 +188,7 @@ export type Database = {
         Update: {
           consultant_id?: string
           created_at?: string
+          fee_proposal_status?: string | null
           id?: string
           project_id?: string
           quote?: number | null
