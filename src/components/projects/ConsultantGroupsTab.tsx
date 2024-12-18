@@ -41,28 +41,61 @@ const ConsultantGroupsTab = ({
   const assignedConsultantIds = projectConsultants.map(pc => pc.consultant_id);
 
   if (filterAssignedOnly) {
+    // Create a map of consultants by their group
+    const consultantsByGroup = new Map();
+    
+    // Initialize groups
+    consultantGroups.forEach(group => {
+      consultantsByGroup.set(group.id, {
+        ...group,
+        consultants: [],
+      });
+    });
+
+    // Populate groups with assigned consultants
+    projectConsultants.forEach(pc => {
+      const consultant = pc.consultant;
+      const group = consultantGroups.find(g => 
+        g.consultants.some(c => c.id === consultant.id)
+      );
+      
+      if (group) {
+        const groupData = consultantsByGroup.get(group.id);
+        if (groupData) {
+          groupData.consultants.push({
+            ...consultant,
+            projectConsultant: pc,
+          });
+        }
+      }
+    });
+
+    // Filter out empty groups
+    const populatedGroups = Array.from(consultantsByGroup.values())
+      .filter(group => group.consultants.length > 0);
+
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projectConsultants.map((pc) => (
-          <EngagedConsultantCardWithDialog
-            key={pc.id}
-            projectConsultant={pc}
-          />
+      <div className="space-y-6">
+        {populatedGroups.map(group => (
+          <div key={group.id} className="space-y-4">
+            <h3 className="text-lg font-semibold">{group.name}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {group.consultants.map((consultant: any) => (
+                <EngagedConsultantCardWithDialog
+                  key={consultant.projectConsultant.id}
+                  projectConsultant={consultant.projectConsultant}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     );
   }
 
-  const filteredGroups = consultantGroups.map(group => ({
-    ...group,
-    consultants: group.consultants.filter(consultant => 
-      filterAssignedOnly ? assignedConsultantIds.includes(consultant.id) : true
-    ),
-  })).filter(group => group.consultants.length > 0);
-
   return (
     <div className="space-y-6">
-      {filteredGroups.map((group) => (
+      {consultantGroups.map((group) => (
         <ConsultantGroup
           key={group.id}
           group={group}

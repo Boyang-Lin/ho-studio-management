@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ConsultantInfo } from "./ConsultantInfo";
 import { ConsultantCardActions } from "./ConsultantCardActions";
+import { QuoteInput } from "./QuoteInput";
 
 interface ConsultantCardProps {
   consultant: {
@@ -49,6 +50,11 @@ const ConsultantCard = ({
         </div>
         <ConsultantInfo consultant={consultant} />
       </CardHeader>
+      {isAssigned && variant === 'selection' && (
+        <CardContent>
+          <QuoteInput projectConsultant={projectConsultant} />
+        </CardContent>
+      )}
     </Card>
   );
 };
