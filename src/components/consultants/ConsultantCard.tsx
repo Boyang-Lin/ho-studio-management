@@ -5,7 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Pencil, Plus, Trash2, User } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Pencil, User, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,10 +27,11 @@ interface ConsultantCardProps {
     phone?: string;
     company_name?: string;
   };
-  onEdit: (consultant: any) => void;
-  onDelete: (id: string) => void;
+  onEdit?: (consultant: any) => void;
+  onDelete?: (id: string) => void;
   onAssign?: (consultant: any) => void;
-  showAssignButton?: boolean;
+  isAssigned?: boolean;
+  variant?: 'default' | 'selection';
 }
 
 const ConsultantCard = ({ 
@@ -37,51 +39,55 @@ const ConsultantCard = ({
   onEdit, 
   onDelete,
   onAssign,
-  showAssignButton = false,
+  isAssigned = false,
+  variant = 'default'
 }: ConsultantCardProps) => {
+  const isSelectionVariant = variant === 'selection';
+
   return (
     <Card className="bg-white">
       <CardHeader className="relative">
         <div className="absolute top-4 right-4 flex space-x-2">
-          {showAssignButton && onAssign && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onAssign(consultant)}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEdit(consultant)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Trash2 className="h-4 w-4 text-destructive" />
+          {isSelectionVariant ? (
+            <Checkbox
+              checked={isAssigned}
+              onCheckedChange={() => onAssign?.(consultant)}
+              aria-label={isAssigned ? "Remove consultant" : "Assign consultant"}
+            />
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onEdit?.(consultant)}
+              >
+                <Pencil className="h-4 w-4" />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Consultant</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete this consultant? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => onDelete(consultant.id)}
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Consultant</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete this consultant? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete?.(consultant.id)}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <User className="h-5 w-5 text-muted-foreground" />
