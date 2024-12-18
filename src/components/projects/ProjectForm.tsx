@@ -5,18 +5,11 @@ import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import ProjectStatusSelect from "./ProjectStatusSelect";
+import { Project, ProjectFormValues } from "@/types/project";
+import ProjectFormFields from "./ProjectFormFields";
 
 const formSchema = z.object({
   name: z.string().min(1, "Project name is required"),
@@ -30,18 +23,8 @@ const formSchema = z.object({
   status: z.string(),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
 interface ProjectFormProps {
-  project?: {
-    id: string;
-    name: string;
-    client_name: string;
-    client_contact: string;
-    client_email: string;
-    estimated_cost: number;
-    status: string;
-  };
+  project?: Project;
   onClose: () => void;
 }
 
@@ -50,7 +33,7 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<FormValues>({
+  const form = useForm<ProjectFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: project?.name || "",
@@ -62,7 +45,7 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
     },
   });
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: ProjectFormValues) => {
     setIsSubmitting(true);
     try {
       if (project) {
@@ -84,14 +67,12 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
-        const projectData = {
-          ...values,
-          user_id: user.id,
-        };
-
         const { error } = await supabase
           .from("projects")
-          .insert(projectData);
+          .insert({
+            ...values,
+            user_id: user.id,
+          });
 
         if (error) throw error;
 
@@ -118,84 +99,8 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Project Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter project name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="client_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Client Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter client name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="client_contact"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contact Number</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter contact number" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="client_email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter email address" type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="estimated_cost"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Estimated Cost</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter estimated cost"
-                  type="number"
-                  step="0.01"
-                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                  value={field.value}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <ProjectStatusSelect control={form.control} />
-
+        <ProjectFormFields control={form.control} />
+        
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
