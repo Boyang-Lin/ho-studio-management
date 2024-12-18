@@ -38,11 +38,15 @@ export const MultiSelect = ({
   const safeOptions = Array.isArray(options) ? options : [];
   const safeSelected = Array.isArray(selected) ? selected : [];
 
-  const selectedLabels = safeOptions
-    .filter((option) => safeSelected.includes(option.value))
-    .map((option) => option.label);
+  // Create a map for faster lookups
+  const optionsMap = new Map(safeOptions.map(opt => [opt.value, opt]));
+
+  const selectedLabels = safeSelected
+    .map(value => optionsMap.get(value)?.label)
+    .filter(Boolean);
 
   const toggleOption = (value: string) => {
+    if (!value) return;
     const newSelected = safeSelected.includes(value)
       ? safeSelected.filter((item) => item !== value)
       : [...safeSelected, value];
