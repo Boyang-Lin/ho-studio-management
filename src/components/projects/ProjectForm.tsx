@@ -82,10 +82,14 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
-        const { error } = await supabase.from("projects").insert({
+        const projectData = {
           ...values,
           user_id: user.id,
-        });
+        };
+
+        const { error } = await supabase
+          .from("projects")
+          .insert(projectData);
 
         if (error) throw error;
 
