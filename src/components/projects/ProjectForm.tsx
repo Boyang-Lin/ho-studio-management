@@ -22,8 +22,13 @@ const formSchema = z.object({
   client_name: z.string().min(1, "Client name is required"),
   client_contact: z.string().min(1, "Contact number is required"),
   client_email: z.string().email("Invalid email address"),
-  estimated_cost: z.string().min(1, "Estimated cost is required").transform(Number),
+  estimated_cost: z.number({
+    required_error: "Estimated cost is required",
+    invalid_type_error: "Estimated cost must be a number",
+  }).nonnegative("Cost must be a positive number"),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface ProjectFormProps {
   project?: {
@@ -42,18 +47,18 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: project?.name || "",
       client_name: project?.client_name || "",
       client_contact: project?.client_contact || "",
       client_email: project?.client_email || "",
-      estimated_cost: project?.estimated_cost?.toString() || "",
+      estimated_cost: project?.estimated_cost || 0,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
       if (project) {
@@ -74,9 +79,12 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
         });
       } else {
         // Create new project
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("No user found");
+
         const { error } = await supabase.from("projects").insert({
           ...values,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: user.id,
         });
 
         if (error) throw error;
@@ -90,6 +98,7 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       onClose();
     } catch (error) {
+      console.error("Error:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -170,7 +179,8 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
                   placeholder="Enter estimated cost"
                   type="number"
                   step="0.01"
-                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  value={field.value}
                 />
               </FormControl>
               <FormMessage />
