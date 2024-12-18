@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface EngagedConsultantsTabProps {
   projectConsultants: Array<{
@@ -37,14 +38,20 @@ const EngagedConsultantsTab = ({
           </CardHeader>
           <CardContent>
             {pc.quote && (
-              <div>
-                <dt className="text-muted-foreground">Quote</dt>
-                <dd className="text-xl font-semibold">
-                  ${pc.quote.toLocaleString()}
-                </dd>
-                <dd className="text-sm text-muted-foreground">
-                  Status: {pc.quote_status}
-                </dd>
+              <div className="space-y-2">
+                <div>
+                  <dt className="text-sm text-muted-foreground">Quote Amount</dt>
+                  <dd className="text-2xl font-bold">
+                    ${pc.quote.toLocaleString()}
+                  </dd>
+                </div>
+                <Badge 
+                  variant={pc.quote_status === "Approved" ? "default" : 
+                          pc.quote_status === "Rejected" ? "destructive" : 
+                          "secondary"}
+                >
+                  {pc.quote_status}
+                </Badge>
               </div>
             )}
           </CardContent>
