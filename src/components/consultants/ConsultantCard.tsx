@@ -6,7 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, User, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, User, Pencil, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +19,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ConsultantCardProps {
   consultant: {
@@ -32,6 +37,11 @@ interface ConsultantCardProps {
   onAssign?: (consultant: any) => void;
   isAssigned?: boolean;
   variant?: 'default' | 'selection';
+  projectConsultant?: {
+    id: string;
+    quote?: number | null;
+    quote_status: string;
+  };
 }
 
 const ConsultantCard = ({ 
@@ -40,9 +50,83 @@ const ConsultantCard = ({
   onDelete,
   onAssign,
   isAssigned = false,
-  variant = 'default'
+  variant = 'default',
+  projectConsultant,
 }: ConsultantCardProps) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [quote, setQuote] = useState(projectConsultant?.quote?.toString() || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isSelectionVariant = variant === 'selection';
+
+  const handleSubmitQuote = async () => {
+    if (!quote || !projectConsultant) return;
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("project_consultants")
+        .update({
+          quote: parseFloat(quote),
+          quote_status: "Pending",
+        })
+        .eq("id", projectConsultant.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Quote submitted successfully",
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["project_consultants"],
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit quote",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleApproveQuote = async () => {
+    if (!projectConsultant) return;
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("project_consultants")
+        .update({
+          quote_status: "Approved",
+        })
+        .eq("id", projectConsultant.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Quote approved successfully",
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["project_consultants"],
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve quote",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Card className="bg-white">
@@ -111,6 +195,63 @@ const ConsultantCard = ({
             <div>
               <dt className="text-muted-foreground">Phone</dt>
               <dd>{consultant.phone}</dd>
+            </div>
+          )}
+          {projectConsultant && (
+            <div className="mt-4 pt-4 border-t">
+              {projectConsultant.quote_status === "Approved" ? (
+                <div>
+                  <dt className="text-muted-foreground">Quote</dt>
+                  <dd className="text-xl font-semibold">
+                    ${projectConsultant.quote?.toLocaleString()}
+                  </dd>
+                  <dd className="text-sm text-muted-foreground">
+                    Status: {projectConsultant.quote_status}
+                  </dd>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        value={quote}
+                        onChange={(e) => setQuote(e.target.value)}
+                        placeholder="Enter quote amount"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleSubmitQuote}
+                      disabled={isSubmitting || !quote}
+                    >
+                      {isSubmitting && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Submit
+                    </Button>
+                  </div>
+                  {projectConsultant.quote && (
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">Current Quote</p>
+                        <p className="text-lg">
+                          ${projectConsultant.quote.toLocaleString()}
+                        </p>
+                      </div>
+                      <Button
+                        variant="secondary"
+                        onClick={handleApproveQuote}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Approve
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </dl>
