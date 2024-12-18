@@ -5,6 +5,7 @@ interface PaymentSummaryProps {
   projectConsultants: Array<{
     id: string;
     quote?: number | null;
+    quote_status?: string;
     consultant: {
       name: string;
     };
@@ -16,7 +17,10 @@ interface PaymentSummaryProps {
 }
 
 const PaymentSummary = ({ projectConsultants, invoices }: PaymentSummaryProps) => {
-  const totalQuoted = projectConsultants.reduce((sum, pc) => sum + (pc.quote || 0), 0);
+  const totalQuoted = projectConsultants
+    .filter(pc => pc.quote_status === "Fee Proposal Signed")
+    .reduce((sum, pc) => sum + (pc.quote || 0), 0);
+    
   const totalInvoiced = invoices.reduce((sum, invoice) => sum + invoice.amount, 0);
   const totalPaid = invoices
     .filter(invoice => invoice.status === 'Paid')
@@ -33,6 +37,9 @@ const PaymentSummary = ({ projectConsultants, invoices }: PaymentSummaryProps) =
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">${totalQuoted.toLocaleString()}</div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Only includes signed fee proposals
+          </p>
         </CardContent>
       </Card>
 
