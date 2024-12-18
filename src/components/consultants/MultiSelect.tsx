@@ -27,17 +27,25 @@ export interface MultiSelectProps {
   onChange: (values: string[]) => void;
 }
 
-export const MultiSelect = ({ options, selected = [], onChange }: MultiSelectProps) => {
+export const MultiSelect = ({ 
+  options = [], 
+  selected = [], 
+  onChange 
+}: MultiSelectProps) => {
   const [open, setOpen] = useState(false);
 
-  const selectedLabels = options
-    .filter((option) => selected.includes(option.value))
+  // Ensure we have valid arrays to work with
+  const safeOptions = Array.isArray(options) ? options : [];
+  const safeSelected = Array.isArray(selected) ? selected : [];
+
+  const selectedLabels = safeOptions
+    .filter((option) => safeSelected.includes(option.value))
     .map((option) => option.label);
 
   const toggleOption = (value: string) => {
-    const newSelected = selected.includes(value)
-      ? selected.filter((item) => item !== value)
-      : [...selected, value];
+    const newSelected = safeSelected.includes(value)
+      ? safeSelected.filter((item) => item !== value)
+      : [...safeSelected, value];
     onChange(newSelected);
   };
 
@@ -69,7 +77,7 @@ export const MultiSelect = ({ options, selected = [], onChange }: MultiSelectPro
           <CommandInput placeholder="Search groups..." />
           <CommandEmpty>No groups found.</CommandEmpty>
           <CommandGroup>
-            {options.map((option) => (
+            {safeOptions.map((option) => (
               <CommandItem
                 key={option.value}
                 value={option.value}
@@ -78,7 +86,7 @@ export const MultiSelect = ({ options, selected = [], onChange }: MultiSelectPro
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    selected.includes(option.value) ? "opacity-100" : "opacity-0"
+                    safeSelected.includes(option.value) ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {option.label}
