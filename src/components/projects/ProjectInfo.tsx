@@ -15,7 +15,7 @@ const ProjectInfo = ({ project }: ProjectInfoProps) => {
       <h2 className="text-xl font-semibold">Project Details</h2>
       <dl className="space-y-2">
         <div>
-          <dt className="text-sm text-muted-foreground">Client</dt>
+          <dt className="text-sm text-muted-foreground">Client Name</dt>
           <dd>{project.client_name}</dd>
         </div>
         <div>
