@@ -40,6 +40,7 @@ interface InvoiceDialogProps {
       name: string;
     };
   }>;
+  preSelectedConsultantId?: string;
 }
 
 const InvoiceDialog = ({
@@ -47,6 +48,7 @@ const InvoiceDialog = ({
   onOpenChange,
   invoice,
   projectConsultants,
+  preSelectedConsultantId,
 }: InvoiceDialogProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -54,7 +56,7 @@ const InvoiceDialog = ({
 
   const form = useForm({
     defaultValues: {
-      project_consultant_id: "",
+      project_consultant_id: preSelectedConsultantId || "",
       amount: "",
       invoice_number: "",
       due_date: "",
@@ -76,7 +78,7 @@ const InvoiceDialog = ({
       });
     } else {
       form.reset({
-        project_consultant_id: "",
+        project_consultant_id: preSelectedConsultantId || "",
         amount: "",
         invoice_number: "",
         due_date: "",
@@ -84,7 +86,7 @@ const InvoiceDialog = ({
         notes: "",
       });
     }
-  }, [invoice, form]);
+  }, [invoice, form, preSelectedConsultantId]);
 
   const onSubmit = async (values: any) => {
     setIsSubmitting(true);
