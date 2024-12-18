@@ -1,4 +1,5 @@
 import ConsultantGroup from "@/components/consultants/ConsultantGroup";
+import EngagedConsultantCardWithDialog from "@/components/consultants/EngagedConsultantCardWithDialog";
 
 interface ConsultantGroupsTabProps {
   consultantGroups: Array<{
@@ -34,6 +35,19 @@ const ConsultantGroupsTab = ({
   filterAssignedOnly = false,
 }: ConsultantGroupsTabProps) => {
   const assignedConsultantIds = projectConsultants.map(pc => pc.consultant_id);
+
+  if (filterAssignedOnly) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {projectConsultants.map((pc) => (
+          <EngagedConsultantCardWithDialog
+            key={pc.id}
+            projectConsultant={pc}
+          />
+        ))}
+      </div>
+    );
+  }
 
   const filteredGroups = consultantGroups.map(group => ({
     ...group,

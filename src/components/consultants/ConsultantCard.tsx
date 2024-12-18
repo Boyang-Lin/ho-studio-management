@@ -1,7 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ConsultantInfo } from "./ConsultantInfo";
-import { QuoteInput } from "./QuoteInput";
-import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 import { ConsultantCardActions } from "./ConsultantCardActions";
 
 interface ConsultantCardProps {
@@ -17,14 +15,6 @@ interface ConsultantCardProps {
   onAssign?: (consultant: any) => void;
   isAssigned?: boolean;
   variant?: 'default' | 'selection';
-  projectConsultant?: {
-    id: string;
-    quote?: number | null;
-    quote_status: string;
-    consultant: {
-      name: string;
-    };
-  };
 }
 
 const ConsultantCard = ({ 
@@ -34,7 +24,6 @@ const ConsultantCard = ({
   onAssign,
   isAssigned = false,
   variant = 'default',
-  projectConsultant,
 }: ConsultantCardProps) => {
   return (
     <Card className="bg-white group">
@@ -51,14 +40,6 @@ const ConsultantCard = ({
         </div>
         <ConsultantInfo consultant={consultant} />
       </CardHeader>
-      {projectConsultant && (
-        <CardContent>
-          <div className="space-y-6">
-            <QuoteInput projectConsultant={projectConsultant} />
-            <ConsultantPaymentInfo projectConsultant={projectConsultant} />
-          </div>
-        </CardContent>
-      )}
     </Card>
   );
 };
