@@ -8,8 +8,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Loader2 } from "lucide-react";
+import { Pencil, Loader2, Check } from "lucide-react";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface InvoiceListProps {
   invoices: Array<{
@@ -30,6 +33,38 @@ interface InvoiceListProps {
 }
 
 const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleMarkAsPaid = async (invoiceId: string) => {
+    try {
+      const { error } = await supabase
+        .from("consultant_invoices")
+        .update({ 
+          status: "Paid",
+          payment_date: new Date().toISOString()
+        })
+        .eq("id", invoiceId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invoice marked as paid",
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["consultant_invoices"],
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to update invoice status",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -70,11 +105,24 @@ const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
               {invoice.due_date ? format(new Date(invoice.due_date), 'MMM d, yyyy') : '-'}
             </TableCell>
             <TableCell>
-              <Badge
-                variant={invoice.status === 'Paid' ? 'default' : 'secondary'}
-              >
-                {invoice.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={invoice.status === 'Paid' ? 'default' : 'secondary'}
+                >
+                  {invoice.status}
+                </Badge>
+                {invoice.status !== 'Paid' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleMarkAsPaid(invoice.id)}
+                    className="h-7"
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Mark Paid
+                  </Button>
+                )}
+              </div>
             </TableCell>
             <TableCell className="text-right">
               <Button
