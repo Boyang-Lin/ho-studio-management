@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import ConsultantAssignmentDialog from "@/components/projects/ConsultantAssignmentDialog";
 import ProjectConsultantCard from "@/components/projects/ProjectConsultantCard";
 import { Loader2 } from "lucide-react";
+import ConsultantGroup from "@/components/consultants/ConsultantGroup";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -44,6 +45,42 @@ const ProjectDetails = () => {
     },
   });
 
+  const { data: consultantGroups = [] } = useQuery({
+    queryKey: ["consultant_groups"],
+    queryFn: async () => {
+      const { data: groups, error: groupsError } = await supabase
+        .from("consultant_groups")
+        .select("*, consultants:consultant_group_memberships(consultant:consultants(*))");
+
+      if (groupsError) throw groupsError;
+
+      return groups.map(group => ({
+        ...group,
+        consultants: group.consultants?.map((membership: any) => membership.consultant) || []
+      }));
+    },
+  });
+
+  const handleEditConsultant = (consultant: any) => {
+    // This will be implemented in the next iteration
+    console.log("Edit consultant:", consultant);
+  };
+
+  const handleDeleteConsultant = async (id: string) => {
+    // This will be implemented in the next iteration
+    console.log("Delete consultant:", id);
+  };
+
+  const handleEditGroup = (group: any) => {
+    // This will be implemented in the next iteration
+    console.log("Edit group:", group);
+  };
+
+  const handleDeleteGroup = async (id: string) => {
+    // This will be implemented in the next iteration
+    console.log("Delete group:", id);
+  };
+
   if (projectLoading || consultantsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -69,7 +106,8 @@ const ProjectDetails = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <Container className="py-8">
+      <Container className="py-8 space-y-8">
+        {/* Project Details Section */}
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">{project.name}</h1>
@@ -136,6 +174,23 @@ const ProjectDetails = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Consultant List Section */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold">All Consultants</h2>
+          <div className="space-y-6">
+            {consultantGroups?.map((group) => (
+              <ConsultantGroup
+                key={group.id}
+                group={group}
+                onEditGroup={handleEditGroup}
+                onDeleteGroup={handleDeleteGroup}
+                onEditConsultant={handleEditConsultant}
+                onDeleteConsultant={handleDeleteConsultant}
+              />
+            ))}
           </div>
         </div>
       </Container>
