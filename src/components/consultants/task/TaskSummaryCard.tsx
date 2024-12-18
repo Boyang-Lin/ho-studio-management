@@ -92,16 +92,17 @@ export const TaskSummaryCard = ({ projectConsultantId }: TaskSummaryCardProps) =
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="ghost" 
-                          className={`px-2 py-1 h-auto font-normal hover:bg-transparent ${getTaskStatusColor(task.status)}`}
+                          className={`px-2 py-1 h-auto font-normal ${getTaskStatusColor(task.status)}`}
                         >
                           {task.status}
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="bg-white">
                         {statusOptions.map((status) => (
                           <DropdownMenuItem
                             key={status}
                             onClick={() => handleStatusChange(task.id, status)}
+                            className="cursor-pointer"
                           >
                             {status}
                           </DropdownMenuItem>
