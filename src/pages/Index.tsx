@@ -148,7 +148,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <header className="border-b bg-white/50 backdrop-blur-sm">
         <Container className="flex items-center justify-between h-16">
-          <h1 className="text-xl font-semibold">Project Management</h1>
+          <h1 className="text-xl font-semibold">HO Studio Management</h1>
           <Button variant="ghost" onClick={handleLogout}>
             <LogOut className="h-4 w-4 mr-2" />
             Logout
