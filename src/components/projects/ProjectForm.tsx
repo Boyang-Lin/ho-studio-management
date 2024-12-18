@@ -82,8 +82,13 @@ const ProjectForm = ({ project, onClose }: ProjectFormProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
+        // Ensure all required fields are present and properly typed
         const projectData = {
-          ...values,
+          name: values.name,
+          client_name: values.client_name,
+          client_contact: values.client_contact,
+          client_email: values.client_email,
+          estimated_cost: values.estimated_cost,
           user_id: user.id,
         };
 
