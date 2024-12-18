@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
@@ -18,7 +18,17 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [quote, setQuote] = useState(projectConsultant?.quote?.toString() || "");
+  const [originalQuote, setOriginalQuote] = useState(projectConsultant?.quote?.toString() || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (projectConsultant?.quote) {
+      setQuote(projectConsultant.quote.toString());
+      setOriginalQuote(projectConsultant.quote.toString());
+    }
+  }, [projectConsultant?.quote]);
+
+  const hasQuoteChanged = quote !== originalQuote;
 
   const handleSubmitQuote = async () => {
     if (!quote || !projectConsultant) return;
@@ -34,6 +44,8 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
         .eq("id", projectConsultant.id);
 
       if (error) throw error;
+
+      setOriginalQuote(quote);
 
       toast({
         title: "Success",
@@ -79,13 +91,13 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
       />
       <Button
         onClick={handleSubmitQuote}
-        disabled={isSubmitting || !quote}
+        disabled={isSubmitting || !quote || (!hasQuoteChanged && originalQuote)}
         size="sm"
       >
         {isSubmitting && (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         )}
-        Submit
+        {originalQuote ? "Update" : "Submit"}
       </Button>
     </div>
   );
