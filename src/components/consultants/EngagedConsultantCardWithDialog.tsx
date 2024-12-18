@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 import { Button } from "@/components/ui/button";
-import { Plus, User, Building2, Mail } from "lucide-react";
+import { Plus, User, Building2, Mail, Pencil } from "lucide-react";
 import TaskDialog from "@/components/projects/TaskDialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,11 +36,24 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const getTaskStatusColor = (status: string) => {
+  switch (status) {
+    case "Completed":
+      return "bg-green-100 text-green-800";
+    case "In Progress":
+      return "bg-blue-100 text-blue-800";
+    case "Pending Input":
+    default:
+      return "bg-yellow-100 text-yellow-800";
+  }
+};
+
 const EngagedConsultantCardWithDialog = ({
   projectConsultant,
 }: EngagedConsultantCardWithDialogProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["consultant_tasks", projectConsultant.id],
@@ -55,6 +68,11 @@ const EngagedConsultantCardWithDialog = ({
       return data;
     },
   });
+
+  const handleEditTask = (task: any) => {
+    setSelectedTask(task);
+    setTaskDialogOpen(true);
+  };
 
   return (
     <>
@@ -106,7 +124,10 @@ const EngagedConsultantCardWithDialog = ({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Tasks</h3>
-                <Button onClick={() => setTaskDialogOpen(true)}>
+                <Button onClick={() => {
+                  setSelectedTask(null);
+                  setTaskDialogOpen(true);
+                }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Task
                 </Button>
@@ -119,8 +140,19 @@ const EngagedConsultantCardWithDialog = ({
                   tasks.map((task) => (
                     <div 
                       key={task.id} 
-                      className="p-4 rounded-lg border bg-card text-card-foreground"
+                      className="p-4 rounded-lg border bg-card text-card-foreground relative group"
                     >
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditTask(task);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       <h4 className="font-medium">{task.title}</h4>
                       {task.description && (
                         <p className="text-sm text-muted-foreground mt-1">
@@ -128,7 +160,12 @@ const EngagedConsultantCardWithDialog = ({
                         </p>
                       )}
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="secondary">{task.status}</Badge>
+                        <Badge 
+                          variant="secondary"
+                          className={getTaskStatusColor(task.status)}
+                        >
+                          {task.status}
+                        </Badge>
                         {task.due_date && (
                           <span className="text-sm text-muted-foreground">
                             Due: {new Date(task.due_date).toLocaleDateString()}
@@ -148,6 +185,7 @@ const EngagedConsultantCardWithDialog = ({
         open={taskDialogOpen}
         onOpenChange={setTaskDialogOpen}
         projectConsultantId={projectConsultant.id}
+        task={selectedTask}
       />
     </>
   );
