@@ -17,6 +17,9 @@ interface ConsultantGroupsTabProps {
     consultant_id: string;
     quote?: number | null;
     quote_status: string;
+    consultant: {
+      name: string;
+    };
   }>;
   onAssignConsultant: (consultant: any) => void;
   variant?: 'default' | 'selection';
