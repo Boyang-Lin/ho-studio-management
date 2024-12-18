@@ -15,7 +15,7 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
   company_name: z.string().optional(),
-  group_ids: z.array(z.string()).optional(),
+  group_id: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -27,7 +27,7 @@ interface ConsultantFormProps {
     email: string;
     phone?: string;
     company_name?: string;
-    group_ids?: string[];
+    group_id?: string;
   };
   groups: {
     id: string;
@@ -48,7 +48,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
       email: consultant?.email || "",
       phone: consultant?.phone || "",
       company_name: consultant?.company_name || "",
-      group_ids: consultant?.group_ids || [],
+      group_id: consultant?.group_id || "",
     },
   });
 
@@ -73,7 +73,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
 
         if (consultantError) throw consultantError;
 
-        // Delete existing group memberships
+        // Delete existing group membership
         const { error: deleteError } = await supabase
           .from("consultant_group_memberships")
           .delete()
@@ -81,16 +81,14 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
 
         if (deleteError) throw deleteError;
 
-        // Insert new group memberships
-        if (values.group_ids && values.group_ids.length > 0) {
+        // Insert new group membership if a group is selected
+        if (values.group_id) {
           const { error: membershipError } = await supabase
             .from("consultant_group_memberships")
-            .insert(
-              values.group_ids.map(groupId => ({
-                consultant_id: consultant.id,
-                group_id: groupId,
-              }))
-            );
+            .insert({
+              consultant_id: consultant.id,
+              group_id: values.group_id,
+            });
 
           if (membershipError) throw membershipError;
         }
@@ -115,16 +113,14 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
 
         if (consultantError) throw consultantError;
 
-        // Insert group memberships
-        if (values.group_ids && values.group_ids.length > 0) {
+        // Insert group membership if a group is selected
+        if (values.group_id) {
           const { error: membershipError } = await supabase
             .from("consultant_group_memberships")
-            .insert(
-              values.group_ids.map(groupId => ({
-                consultant_id: newConsultant.id,
-                group_id: groupId,
-              }))
-            );
+            .insert({
+              consultant_id: newConsultant.id,
+              group_id: values.group_id,
+            });
 
           if (membershipError) throw membershipError;
         }

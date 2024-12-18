@@ -1,6 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MultiSelect } from "./MultiSelect";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 
@@ -9,7 +9,7 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
   company_name: z.string().optional(),
-  group_ids: z.array(z.string()).default([]),
+  group_id: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -83,18 +83,24 @@ const ConsultantFormFields = ({ form, groups }: ConsultantFormFieldsProps) => {
 
       <FormField
         control={form.control}
-        name="group_ids"
+        name="group_id"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Groups (Optional)</FormLabel>
-            <MultiSelect
-              options={groups.map(group => ({
-                value: group.id,
-                label: group.name
-              }))}
-              selected={field.value || []}
-              onChange={field.onChange}
-            />
+            <FormLabel>Group (Optional)</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a group" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {groups.map((group) => (
+                  <SelectItem key={group.id} value={group.id}>
+                    {group.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FormMessage />
           </FormItem>
         )}
