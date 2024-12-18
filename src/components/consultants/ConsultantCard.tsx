@@ -24,6 +24,7 @@ interface ConsultantCardProps {
     name: string;
     email: string;
     phone?: string;
+    company_name?: string;
   };
   onEdit: (consultant: any) => void;
   onDelete: (id: string) => void;
@@ -72,6 +73,12 @@ const ConsultantCard = ({ consultant, onEdit, onDelete }: ConsultantCardProps) =
       </CardHeader>
       <CardContent>
         <dl className="space-y-2 text-sm">
+          {consultant.company_name && (
+            <div>
+              <dt className="text-muted-foreground">Company</dt>
+              <dd>{consultant.company_name}</dd>
+            </div>
+          )}
           <div>
             <dt className="text-muted-foreground">Email</dt>
             <dd>{consultant.email}</dd>

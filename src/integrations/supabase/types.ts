@@ -32,6 +32,7 @@ export type Database = {
       }
       consultants: {
         Row: {
+          company_name: string | null
           created_at: string
           email: string
           group_id: string | null
@@ -42,6 +43,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_name?: string | null
           created_at?: string
           email: string
           group_id?: string | null
@@ -52,6 +54,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_name?: string | null
           created_at?: string
           email?: string
           group_id?: string | null
