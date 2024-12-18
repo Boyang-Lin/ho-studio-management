@@ -19,6 +19,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import ProjectDialog from "@/components/projects/ProjectDialog";
+import ConsultantDialog from "@/components/consultants/ConsultantDialog";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<"projects" | "consultants">("projects");
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [consultantDialogOpen, setConsultantDialogOpen] = useState(false);
+  const [selectedConsultant, setSelectedConsultant] = useState<any>(null);
 
   const { data: projects, refetch: refetchProjects } = useQuery({
     queryKey: ["projects"],
@@ -40,7 +43,7 @@ const Index = () => {
     },
   });
 
-  const { data: consultantGroups } = useQuery({
+  const { data: consultantGroups, refetch: refetchConsultantGroups } = useQuery({
     queryKey: ["consultant_groups"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -84,6 +87,35 @@ const Index = () => {
   const handleCloseProjectDialog = () => {
     setSelectedProject(null);
     setProjectDialogOpen(false);
+  };
+
+  const handleDeleteConsultant = async (id: string) => {
+    const { error } = await supabase.from("consultants").delete().eq("id", id);
+    
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete consultant",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Consultant deleted successfully",
+    });
+    refetchConsultantGroups();
+  };
+
+  const handleEditConsultant = (consultant: any) => {
+    setSelectedConsultant(consultant);
+    setConsultantDialogOpen(true);
+  };
+
+  const handleCloseConsultantDialog = () => {
+    setSelectedConsultant(null);
+    setConsultantDialogOpen(false);
   };
 
   return (
@@ -194,7 +226,7 @@ const Index = () => {
                   <Plus className="h-4 w-4 mr-2" />
                   New Group
                 </Button>
-                <Button>
+                <Button onClick={() => setConsultantDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   New Consultant
                 </Button>
@@ -220,12 +252,36 @@ const Index = () => {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <Button variant="ghost" size="icon">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditConsultant(consultant)}
+                            >
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Consultant</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this consultant? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteConsultant(consultant.id)}
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </div>
                       ))}
@@ -242,6 +298,13 @@ const Index = () => {
         open={projectDialogOpen}
         onOpenChange={handleCloseProjectDialog}
         project={selectedProject}
+      />
+
+      <ConsultantDialog
+        open={consultantDialogOpen}
+        onOpenChange={handleCloseConsultantDialog}
+        consultant={selectedConsultant}
+        groups={consultantGroups || []}
       />
     </div>
   );
