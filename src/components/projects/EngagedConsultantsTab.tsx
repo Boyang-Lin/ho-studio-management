@@ -19,6 +19,17 @@ interface EngagedConsultantsTabProps {
 const EngagedConsultantsTab = ({
   projectConsultants,
 }: EngagedConsultantsTabProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Signed":
+        return "default";
+      case "Sent to client":
+        return "secondary";
+      default:
+        return "outline";
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {projectConsultants.map((pc) => (
@@ -38,18 +49,14 @@ const EngagedConsultantsTab = ({
           </CardHeader>
           <CardContent>
             {pc.quote && (
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <div>
                   <dt className="text-sm text-muted-foreground">Quote Amount</dt>
                   <dd className="text-2xl font-bold">
                     ${pc.quote.toLocaleString()}
                   </dd>
                 </div>
-                <Badge 
-                  variant={pc.quote_status === "Approved" ? "default" : 
-                          pc.quote_status === "Rejected" ? "destructive" : 
-                          "secondary"}
-                >
+                <Badge variant={getStatusColor(pc.quote_status)}>
                   {pc.quote_status}
                 </Badge>
               </div>

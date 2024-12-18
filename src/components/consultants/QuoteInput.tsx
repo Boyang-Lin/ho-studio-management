@@ -8,9 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const QUOTE_STATUS_OPTIONS = [
-  "Pending",
-  "Approved",
-  "Rejected"
+  "Received",
+  "Sent to client",
+  "Signed"
 ] as const;
 
 interface QuoteInputProps {
@@ -26,7 +26,7 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
   const queryClient = useQueryClient();
   const [quote, setQuote] = useState(projectConsultant?.quote?.toString() || "");
   const [originalQuote, setOriginalQuote] = useState(projectConsultant?.quote?.toString() || "");
-  const [status, setStatus] = useState(projectConsultant?.quote_status || "Pending");
+  const [status, setStatus] = useState(projectConsultant?.quote_status || "Received");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -95,20 +95,6 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
           )}
           {originalQuote ? "Update" : "Submit"}
         </Button>
-      </div>
-      <div>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            {QUOTE_STATUS_OPTIONS.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
     </div>
   );
