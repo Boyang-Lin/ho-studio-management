@@ -91,7 +91,7 @@ export const QuoteInput = ({ projectConsultant }: QuoteInputProps) => {
       />
       <Button
         onClick={handleSubmitQuote}
-        disabled={isSubmitting || !quote || (!hasQuoteChanged && originalQuote)}
+        disabled={isSubmitting || !quote || (!hasQuoteChanged && Boolean(originalQuote))}
         size="sm"
       >
         {isSubmitting && (
