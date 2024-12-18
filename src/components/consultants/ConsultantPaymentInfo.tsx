@@ -14,6 +14,7 @@ interface ConsultantPaymentInfoProps {
     consultant: {
       name: string;
     };
+    preSelectedConsultantId?: string;
   };
 }
 
@@ -125,7 +126,12 @@ export const ConsultantPaymentInfo = ({
       <InvoiceDialog
         open={invoiceDialogOpen}
         onOpenChange={setInvoiceDialogOpen}
-        projectConsultants={[projectConsultant]}
+        projectConsultants={[{
+          id: projectConsultant.id,
+          quote: projectConsultant.quote,
+          consultant: projectConsultant.consultant
+        }]}
+        preSelectedConsultantId={projectConsultant.preSelectedConsultantId}
       />
     </div>
   );

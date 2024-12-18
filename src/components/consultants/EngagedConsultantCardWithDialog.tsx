@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 import { Button } from "@/components/ui/button";
@@ -125,7 +125,13 @@ const EngagedConsultantCardWithDialog = ({
             <DialogTitle>{projectConsultant.consultant.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
-            <ConsultantPaymentInfo projectConsultant={projectConsultant} />
+            <ConsultantPaymentInfo 
+              projectConsultant={{
+                ...projectConsultant,
+                // Pre-select this consultant when creating a new invoice
+                preSelectedConsultantId: projectConsultant.id
+              }} 
+            />
             
             <div className="space-y-4">
               <div className="flex justify-between items-center">
