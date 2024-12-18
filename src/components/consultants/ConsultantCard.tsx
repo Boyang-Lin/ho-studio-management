@@ -68,17 +68,18 @@ const ConsultantCard = ({ consultant, onEdit, onDelete }: ConsultantCardProps) =
         </div>
         <div className="flex items-center space-x-2">
           <User className="h-5 w-5 text-muted-foreground" />
-          <CardTitle className="text-lg">{consultant.name}</CardTitle>
+          <div>
+            <CardTitle className="text-lg">{consultant.name}</CardTitle>
+            {consultant.company_name && (
+              <p className="text-sm text-muted-foreground">
+                {consultant.company_name}
+              </p>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
         <dl className="space-y-2 text-sm">
-          {consultant.company_name && (
-            <div>
-              <dt className="text-muted-foreground">Company</dt>
-              <dd>{consultant.company_name}</dd>
-            </div>
-          )}
           <div>
             <dt className="text-muted-foreground">Email</dt>
             <dd>{consultant.email}</dd>
