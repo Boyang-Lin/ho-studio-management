@@ -63,6 +63,47 @@ export type Database = {
         }
         Relationships: []
       }
+      consultant_tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          project_consultant_id: string
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          project_consultant_id: string
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          project_consultant_id?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultant_tasks_project_consultant_id_fkey"
+            columns: ["project_consultant_id"]
+            isOneToOne: false
+            referencedRelation: "project_consultants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultants: {
         Row: {
           company_name: string | null
@@ -122,6 +163,51 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      project_consultants: {
+        Row: {
+          consultant_id: string
+          created_at: string
+          id: string
+          project_id: string
+          quote: number | null
+          quote_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          consultant_id: string
+          created_at?: string
+          id?: string
+          project_id: string
+          quote?: number | null
+          quote_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          consultant_id?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          quote?: number | null
+          quote_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_consultants_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_consultants_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {

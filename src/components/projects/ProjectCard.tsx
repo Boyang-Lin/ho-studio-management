@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Pencil, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +35,7 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
+  const navigate = useNavigate();
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Design Stage":
@@ -54,18 +56,21 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   };
 
   return (
-    <Card>
+    <Card
+      className="cursor-pointer transition-all hover:shadow-md"
+      onClick={() => navigate(`/project/${project.id}`)}
+    >
       <CardHeader>
         <div className="flex justify-between items-start">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+              project.status
+            )}`}
+          >
             {project.status}
           </span>
-          <div className="flex space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(project)}
-            >
+          <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="icon" onClick={() => onEdit(project)}>
               <Pencil className="h-4 w-4" />
             </Button>
             <AlertDialog>
@@ -78,14 +83,13 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Project</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete this project? This action cannot be undone.
+                    Are you sure you want to delete this project? This action
+                    cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => onDelete(project.id)}
-                  >
+                  <AlertDialogAction onClick={() => onDelete(project.id)}>
                     Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -95,7 +99,9 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
         </div>
         <CardTitle>{project.name}</CardTitle>
         {project.description && (
-          <p className="text-sm text-muted-foreground mt-2">{project.description}</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            {project.description}
+          </p>
         )}
       </CardHeader>
       <CardContent>
