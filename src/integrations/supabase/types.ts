@@ -119,7 +119,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           email: string
-          id?: string
+          id: string
           name: string
           phone?: string | null
           updated_at?: string
@@ -129,7 +129,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           email?: string
-          id?: string
+          id: string
           name?: string
           phone?: string | null
           updated_at?: string
@@ -158,7 +158,7 @@ export type Database = {
           company?: string | null
           created_at?: string
           full_name?: string | null
-          id?: string
+          id: string
           role?: string | null
           updated_at?: string
         }
@@ -291,10 +291,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+      Row: infer R
+    }
+    ? R
+    : never
     : never
 
 export type TablesInsert<
