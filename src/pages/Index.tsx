@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import ProjectDialog from "@/components/projects/ProjectDialog";
 import ConsultantDialog from "@/components/consultants/ConsultantDialog";
+import ConsultantGroupDialog from "@/components/consultants/ConsultantGroupDialog";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ const Index = () => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [consultantDialogOpen, setConsultantDialogOpen] = useState(false);
   const [selectedConsultant, setSelectedConsultant] = useState<any>(null);
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
   const { data: projects, refetch: refetchProjects } = useQuery({
     queryKey: ["projects"],
@@ -116,6 +119,35 @@ const Index = () => {
   const handleCloseConsultantDialog = () => {
     setSelectedConsultant(null);
     setConsultantDialogOpen(false);
+  };
+
+  const handleDeleteGroup = async (id: string) => {
+    const { error } = await supabase.from("consultant_groups").delete().eq("id", id);
+    
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete group",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Group deleted successfully",
+    });
+    refetchConsultantGroups();
+  };
+
+  const handleEditGroup = (group: any) => {
+    setSelectedGroup(group);
+    setGroupDialogOpen(true);
+  };
+
+  const handleCloseGroupDialog = () => {
+    setSelectedGroup(null);
+    setGroupDialogOpen(false);
   };
 
   return (
@@ -222,7 +254,7 @@ const Index = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Consultants</h2>
               <div className="space-x-2">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => setGroupDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   New Group
                 </Button>
@@ -235,7 +267,39 @@ const Index = () => {
             <div className="space-y-6">
               {consultantGroups?.map((group) => (
                 <Card key={group.id}>
-                  <CardHeader>
+                  <CardHeader className="relative">
+                    <div className="absolute top-4 right-4 flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditGroup(group)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Group</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this group? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteGroup(group.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                     <CardTitle>{group.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -305,6 +369,12 @@ const Index = () => {
         onOpenChange={handleCloseConsultantDialog}
         consultant={selectedConsultant}
         groups={consultantGroups || []}
+      />
+
+      <ConsultantGroupDialog
+        open={groupDialogOpen}
+        onOpenChange={handleCloseGroupDialog}
+        group={selectedGroup}
       />
     </div>
   );
