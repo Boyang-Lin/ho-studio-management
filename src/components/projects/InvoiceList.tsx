@@ -8,11 +8,22 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Loader2, Check } from "lucide-react";
+import { Pencil, Loader2, Check, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface InvoiceListProps {
   invoices: Array<{
@@ -61,6 +72,32 @@ const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
         variant: "destructive",
         title: "Error",
         description: error.message || "Failed to update invoice status",
+      });
+    }
+  };
+
+  const handleDelete = async (invoiceId: string) => {
+    try {
+      const { error } = await supabase
+        .from("consultant_invoices")
+        .delete()
+        .eq("id", invoiceId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invoice deleted successfully",
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["consultant_invoices"],
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to delete invoice",
       });
     }
   };
@@ -125,13 +162,36 @@ const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
               </div>
             </TableCell>
             <TableCell className="text-right">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onEdit(invoice)}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onEdit(invoice)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this invoice? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(invoice.id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </TableCell>
           </TableRow>
         ))}
