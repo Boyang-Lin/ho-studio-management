@@ -16,7 +16,7 @@ const ProjectList = ({ projects, onEdit, onDelete, onNew }: ProjectListProps) =>
 
   // Filter out projects based on user type and permissions
   const filteredProjects = projects.filter(project => {
-    if (isAdmin) return true;
+    if (isAdmin) return true; // Admin can see all projects
     if (userType === 'staff') return true; // Projects are already filtered at query level
     return false;
   });

@@ -1,16 +1,16 @@
 import { useState } from "react";
 import Container from "@/components/Container";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import ProjectDialog from "@/components/projects/ProjectDialog";
-import ConsultantDialog from "@/components/consultants/ConsultantDialog";
-import ConsultantGroupDialog from "@/components/consultants/ConsultantGroupDialog";
 import Header from "@/components/layout/Header";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useUserType } from "@/hooks/useUserType";
 import TabNavigation from "@/components/layout/TabNavigation";
 import TabContent from "@/components/layout/TabContent";
+import { useProjects } from "@/hooks/useProjects";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import ProjectDialogManager from "@/components/projects/ProjectDialogManager";
+import ConsultantDialogManager from "@/components/consultants/ConsultantDialogManager";
 
 const Index = () => {
   const { toast } = useToast();
@@ -24,35 +24,7 @@ const Index = () => {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
-  const { data: currentUser } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      return user;
-    },
-  });
-
-  const { data: projects = [], refetch: refetchProjects } = useQuery({
-    queryKey: ["projects"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      let query = supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      // If user is not admin and is staff, only show assigned projects
-      if (!isAdmin && userType === 'staff') {
-        query = query.eq('assigned_staff_id', user.id);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: projects = [], refetch: refetchProjects } = useProjects();
 
   const { data: consultantGroups = [], refetch: refetchConsultantGroups } = useQuery({
     queryKey: ["consultant_groups"],
@@ -187,23 +159,20 @@ const Index = () => {
         />
       </Container>
 
-      <ProjectDialog
-        open={projectDialogOpen}
-        onOpenChange={handleCloseProjectDialog}
-        project={selectedProject}
+      <ProjectDialogManager
+        isOpen={projectDialogOpen}
+        onClose={handleCloseProjectDialog}
+        selectedProject={selectedProject}
       />
 
-      <ConsultantDialog
-        open={consultantDialogOpen}
-        onOpenChange={handleCloseConsultantDialog}
-        consultant={selectedConsultant}
-        groups={consultantGroups || []}
-      />
-
-      <ConsultantGroupDialog
-        open={groupDialogOpen}
-        onOpenChange={handleCloseGroupDialog}
-        group={selectedGroup}
+      <ConsultantDialogManager
+        consultantDialogOpen={consultantDialogOpen}
+        onCloseConsultant={handleCloseConsultantDialog}
+        selectedConsultant={selectedConsultant}
+        groupDialogOpen={groupDialogOpen}
+        onCloseGroup={handleCloseGroupDialog}
+        selectedGroup={selectedGroup}
+        consultantGroups={consultantGroups}
       />
     </div>
   );
