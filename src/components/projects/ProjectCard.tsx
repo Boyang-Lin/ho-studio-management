@@ -36,13 +36,18 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
         `)
         .eq("project_id", project.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching project assignments:", error);
+        return [];
+      }
       
+      if (!data) return [];
+
       // Transform the data to match the expected type
       return data.map(item => ({
-        id: item.profiles.id,
-        full_name: item.profiles.full_name
-      }));
+        id: item.profiles?.id || '',
+        full_name: item.profiles?.full_name || ''
+      })).filter(item => item.id && item.full_name);
     },
   });
 
