@@ -32,6 +32,7 @@ interface ConsultantGroupProps {
       name: string;
     };
   }>;
+  readOnly?: boolean;
 }
 
 const ConsultantGroup = ({
@@ -44,18 +45,21 @@ const ConsultantGroup = ({
   assignedConsultantIds = [],
   variant = 'default',
   projectConsultants = [],
+  readOnly = false,
 }: ConsultantGroupProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
     <Card className="group">
       <CardHeader className="relative">
-        <ConsultantGroupActions
-          group={group}
-          onEditGroup={onEditGroup}
-          onDeleteGroup={onDeleteGroup}
-          variant={variant}
-        />
+        {!readOnly && (
+          <ConsultantGroupActions
+            group={group}
+            onEditGroup={onEditGroup}
+            onDeleteGroup={onDeleteGroup}
+            variant={variant}
+          />
+        )}
         <ConsultantGroupHeader
           name={group.name}
           isExpanded={isExpanded}
@@ -81,12 +85,13 @@ const ConsultantGroup = ({
                 <ConsultantCard
                   key={consultant.id}
                   consultant={consultant}
-                  onEdit={onEditConsultant}
-                  onDelete={onDeleteConsultant}
-                  onAssign={onAssignConsultant}
+                  onEdit={!readOnly ? onEditConsultant : undefined}
+                  onDelete={!readOnly ? onDeleteConsultant : undefined}
+                  onAssign={!readOnly ? onAssignConsultant : undefined}
                   isAssigned={assignedConsultantIds.includes(consultant.id)}
                   variant={variant}
                   projectConsultant={transformedProjectConsultant}
+                  readOnly={readOnly}
                 />
               );
             })}

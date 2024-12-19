@@ -24,6 +24,7 @@ interface ConsultantCardProps {
       name: string;
     };
   };
+  readOnly?: boolean;
 }
 
 const ConsultantCard = ({ 
@@ -34,23 +35,26 @@ const ConsultantCard = ({
   isAssigned = false,
   variant = 'default',
   projectConsultant,
+  readOnly = false,
 }: ConsultantCardProps) => {
   return (
     <Card className="bg-white group">
       <CardHeader className="relative">
-        <div className="absolute top-4 right-4">
-          <ConsultantCardActions
-            consultantId={consultant.id}
-            onEdit={() => onEdit?.(consultant)}
-            onDelete={onDelete}
-            onAssign={() => onAssign?.(consultant)}
-            isAssigned={isAssigned}
-            variant={variant}
-          />
-        </div>
+        {!readOnly && (
+          <div className="absolute top-4 right-4">
+            <ConsultantCardActions
+              consultantId={consultant.id}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onAssign={onAssign}
+              isAssigned={isAssigned}
+              variant={variant}
+            />
+          </div>
+        )}
         <ConsultantInfo consultant={consultant} />
       </CardHeader>
-      {isAssigned && variant === 'selection' && (
+      {isAssigned && variant === 'selection' && !readOnly && (
         <CardContent>
           <QuoteInput projectConsultant={projectConsultant} />
         </CardContent>

@@ -13,6 +13,7 @@ import {
 
 interface TaskSummaryCardProps {
   projectConsultantId: string;
+  readOnly?: boolean;
 }
 
 const getTaskStatusColor = (status: string) => {
@@ -27,7 +28,7 @@ const getTaskStatusColor = (status: string) => {
   }
 };
 
-export const TaskSummaryCard = ({ projectConsultantId }: TaskSummaryCardProps) => {
+export const TaskSummaryCard = ({ projectConsultantId, readOnly = false }: TaskSummaryCardProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -46,6 +47,7 @@ export const TaskSummaryCard = ({ projectConsultantId }: TaskSummaryCardProps) =
   });
 
   const handleStatusChange = async (taskId: string, newStatus: string) => {
+    if (readOnly) return;
     try {
       const { error } = await supabase
         .from("consultant_tasks")
@@ -88,28 +90,34 @@ export const TaskSummaryCard = ({ projectConsultantId }: TaskSummaryCardProps) =
                 <div key={task.id} className="p-3 rounded-lg border bg-card">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium">{task.title}</h4>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          className={`px-2 py-1 h-auto font-normal ${getTaskStatusColor(task.status)}`}
-                        >
-                          {task.status}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white">
-                        {statusOptions.map((status) => (
-                          <DropdownMenuItem
-                            key={status}
-                            onClick={() => handleStatusChange(task.id, status)}
-                            className="cursor-pointer"
-                            textValue={status}
+                    {readOnly ? (
+                      <Badge className={getTaskStatusColor(task.status)}>
+                        {task.status}
+                      </Badge>
+                    ) : (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className={`px-2 py-1 h-auto font-normal ${getTaskStatusColor(task.status)}`}
                           >
-                            {status}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                            {task.status}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-white">
+                          {statusOptions.map((status) => (
+                            <DropdownMenuItem
+                              key={status}
+                              onClick={() => handleStatusChange(task.id, status)}
+                              className="cursor-pointer"
+                              textValue={status}
+                            >
+                              {status}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </div>
                   {task.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
