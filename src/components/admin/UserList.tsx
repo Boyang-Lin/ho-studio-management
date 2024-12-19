@@ -21,10 +21,10 @@ const UserList = () => {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ id, role, full_name }: { id: string; role: string; full_name: string }) => {
+    mutationFn: async ({ id, role, full_name, user_type }: { id: string; role: string; full_name: string; user_type: string }) => {
       const { error } = await supabase
         .from("profiles")
-        .update({ role, full_name })
+        .update({ role, full_name, user_type })
         .eq("id", id);
 
       if (error) throw error;
@@ -46,8 +46,8 @@ const UserList = () => {
     },
   });
 
-  const handleSave = (id: string, values: { role: string; full_name: string }) => {
-    updateUserMutation.mutate({ id, role: values.role, full_name: values.full_name });
+  const handleSave = (id: string, values: { role: string; full_name: string; user_type: string }) => {
+    updateUserMutation.mutate({ id, ...values });
   };
 
   if (isLoading) {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface User {
   id: string;
@@ -9,19 +10,21 @@ interface User {
   role: string;
   is_admin: boolean;
   created_at: string;
+  user_type: string;
   email: string;
 }
 
 interface UserTableRowProps {
   user: User;
-  onSave: (id: string, values: { role: string; full_name: string }) => void;
+  onSave: (id: string, values: { role: string; full_name: string; user_type: string }) => void;
 }
 
 const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({ 
     role: user.role || "",
-    full_name: user.full_name || "" 
+    full_name: user.full_name || "",
+    user_type: user.user_type || "staff"
   });
 
   const handleSave = () => {
@@ -59,6 +62,24 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
         )}
       </TableCell>
       <TableCell>{user.is_admin ? "Admin" : "User"}</TableCell>
+      <TableCell>
+        {isEditing ? (
+          <Select
+            value={editValues.user_type}
+            onValueChange={(value) => setEditValues({ ...editValues, user_type: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select user type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="staff">Staff</SelectItem>
+              <SelectItem value="client">Client</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          user.user_type
+        )}
+      </TableCell>
       <TableCell>
         {new Date(user.created_at).toLocaleDateString()}
       </TableCell>

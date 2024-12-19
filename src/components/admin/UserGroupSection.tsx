@@ -20,7 +20,7 @@ interface User {
 interface UserGroupSectionProps {
   title: string;
   users: User[];
-  onSave: (id: string, values: { role: string; full_name: string }) => void;
+  onSave: (id: string, values: { role: string; full_name: string; user_type: string }) => void;
 }
 
 const UserGroupSection = ({ title, users, onSave }: UserGroupSectionProps) => {
@@ -36,6 +36,7 @@ const UserGroupSection = ({ title, users, onSave }: UserGroupSectionProps) => {
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Admin Status</TableHead>
+            <TableHead>User Type</TableHead>
             <TableHead>Joined</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
