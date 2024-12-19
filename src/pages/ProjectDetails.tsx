@@ -3,21 +3,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/Container";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Loader2, Users, UserCheck } from "lucide-react";
-import ProjectHeader from "@/components/projects/ProjectHeader";
-import ProjectInfo from "@/components/projects/ProjectInfo";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ConsultantGroupsTab from "@/components/projects/ConsultantGroupsTab";
-import PaymentManagementTab from "@/components/projects/PaymentManagementTab";
 import { useUserType } from "@/hooks/useUserType";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { ProjectDetailsHeader } from "@/components/projects/ProjectDetailsHeader";
+import { ProjectTabs } from "@/components/projects/tabs/ProjectTabs";
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("engaged-consultants");
+  const [activeTab, setActiveTab] = useState("all-consultants");
   const userType = useUserType();
   const isAdmin = useIsAdmin();
   const isClient = userType === 'client';
@@ -73,7 +70,6 @@ const ProjectDetails = () => {
         consultants: group.consultants?.map((membership: any) => membership.consultant) || []
       }));
     },
-    enabled: isStaff, // Only fetch consultant groups for staff and admin users
   });
 
   useEffect(() => {
@@ -101,7 +97,7 @@ const ProjectDetails = () => {
   }, [id, queryClient]);
 
   const handleAssignConsultant = async (consultant: any) => {
-    if (!isStaff) return; // Only allow staff and admin to assign consultants
+    if (!isStaff) return;
     
     const isAssigned = projectConsultants.some(pc => pc.consultant_id === consultant.id);
     
@@ -163,56 +159,18 @@ const ProjectDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Container className="py-8 space-y-8">
-        <div className="space-y-6">
-          <ProjectHeader projectName={project.name} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <ProjectInfo project={project} />
-          </div>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-2">
-            <TabsTrigger value="engaged-consultants" className="space-x-2">
-              <UserCheck className="h-4 w-4" />
-              <span>Engaged Consultants</span>
-            </TabsTrigger>
-            {isStaff && (
-              <TabsTrigger value="all-consultants" className="space-x-2">
-                <Users className="h-4 w-4" />
-                <span>All Consultants</span>
-              </TabsTrigger>
-            )}
-          </TabsList>
-
-          <TabsContent value="engaged-consultants">
-            <ConsultantGroupsTab
-              consultantGroups={consultantGroups}
-              projectConsultants={projectConsultants}
-              onAssignConsultant={handleAssignConsultant}
-              filterAssignedOnly
-              readOnly={!isStaff}
-            />
-          </TabsContent>
-
-          {isStaff && (
-            <TabsContent value="all-consultants">
-              <ConsultantGroupsTab
-                consultantGroups={consultantGroups}
-                projectConsultants={projectConsultants}
-                onAssignConsultant={handleAssignConsultant}
-                variant="selection"
-              />
-            </TabsContent>
-          )}
-        </Tabs>
-
-        {(isStaff || isClient) && (
-          <PaymentManagementTab
-            projectId={id || ''}
-            projectConsultants={projectConsultants}
-            readOnly={isClient}
-          />
-        )}
+        <ProjectDetailsHeader project={project} />
+        
+        <ProjectTabs
+          projectId={id || ''}
+          consultantGroups={consultantGroups}
+          projectConsultants={projectConsultants}
+          onAssignConsultant={handleAssignConsultant}
+          isStaff={isStaff}
+          isClient={isClient}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
       </Container>
     </div>
   );
