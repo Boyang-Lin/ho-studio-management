@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { ProjectCardActions } from "./ProjectCardActions";
 import { ProjectStatusBadge } from "./ProjectStatusBadge";
 import { ProjectDetails } from "./ProjectDetails";
+import ProjectAssignmentSelect from "./ProjectAssignmentSelect";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProjectCardProps {
   project: {
@@ -14,6 +19,7 @@ interface ProjectCardProps {
     client_email: string;
     estimated_cost: number;
     status: string;
+    assigned_user_id: string | null;
   };
   onEdit: (project: any) => void;
   onDelete: (id: string) => void;
@@ -21,6 +27,34 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   const navigate = useNavigate();
+  const isAdmin = useIsAdmin();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleAssignUser = async (userId: string | null) => {
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({ assigned_user_id: userId })
+        .eq("id", project.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Project assignment updated successfully",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update project assignment",
+      });
+    }
+  };
 
   return (
     <Card
@@ -39,6 +73,15 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
         <ProjectDetails project={project} />
       </CardHeader>
       <CardContent>
+        {isAdmin && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <ProjectAssignmentSelect
+              projectId={project.id}
+              currentAssignedUserId={project.assigned_user_id}
+              onAssign={handleAssignUser}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -267,6 +267,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          assigned_user_id: string | null
           client_contact: string
           client_email: string
           client_name: string
@@ -280,6 +281,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          assigned_user_id?: string | null
           client_contact: string
           client_email: string
           client_name: string
@@ -293,6 +295,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          assigned_user_id?: string | null
           client_contact?: string
           client_email?: string
           client_name?: string
