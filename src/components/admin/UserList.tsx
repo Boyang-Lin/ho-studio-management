@@ -12,7 +12,12 @@ const UserList = () => {
     queryFn: async () => {
       const { data: profiles, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`
+          *,
+          auth_user:id (
+            email
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

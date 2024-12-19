@@ -14,12 +14,15 @@ interface User {
   is_admin: boolean;
   created_at: string;
   user_type: string;
+  auth_user: {
+    email: string;
+  };
 }
 
 interface UserGroupSectionProps {
   title: string;
   users: User[];
-  onSave: (id: string, values: { role: string }) => void;
+  onSave: (id: string, values: { role: string; full_name: string }) => void;
 }
 
 const UserGroupSection = ({ title, users, onSave }: UserGroupSectionProps) => {
@@ -32,6 +35,7 @@ const UserGroupSection = ({ title, users, onSave }: UserGroupSectionProps) => {
         <TableHeader>
           <TableRow>
             <TableHead>Full Name</TableHead>
+            <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Admin Status</TableHead>
             <TableHead>Joined</TableHead>
