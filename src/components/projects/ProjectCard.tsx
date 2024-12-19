@@ -29,7 +29,7 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
         .from("project_assignments")
         .select(`
           user_id,
-          profiles!project_assignments_user_id_fkey (
+          profiles (
             id,
             full_name
           )
@@ -39,7 +39,10 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
       if (error) throw error;
       
       // Transform the data to match the expected type
-      return data.map(item => item.profiles) as Array<{ id: string; full_name: string }>;
+      return data.map(item => ({
+        id: item.profiles.id,
+        full_name: item.profiles.full_name
+      }));
     },
   });
 
