@@ -13,8 +13,10 @@ const ProjectActions = ({ project, onEdit, onDelete }: ProjectActionsProps) => {
   const isAdmin = useIsAdmin();
   const userType = useUserType();
   const isStaff = userType === "staff";
-  const isProjectOwner = project.user_id === project.user_id;
+  const isProjectOwner = project.user_id === auth.uid();
 
+  // Only show actions for admins or staff who own the project
+  // Clients should never see edit/delete actions
   if (isAdmin || (isStaff && isProjectOwner)) {
     return (
       <ProjectCardActions

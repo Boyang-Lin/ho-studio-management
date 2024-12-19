@@ -10,6 +10,7 @@ import { Project } from "@/types/project";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import ProjectActions from "./ProjectActions";
+import { useUserType } from "@/hooks/useUserType";
 
 interface ProjectCardProps {
   project: Project;
@@ -20,6 +21,7 @@ interface ProjectCardProps {
 const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   const navigate = useNavigate();
   const isAdmin = useIsAdmin();
+  const userType = useUserType();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -66,8 +68,8 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
 
   return (
     <Card
-      className="cursor-pointer transition-all hover:shadow-md group"
-      onClick={() => navigate(`/project/${project.id}`)}
+      className={`transition-all hover:shadow-md group ${userType === 'client' ? '' : 'cursor-pointer'}`}
+      onClick={() => userType !== 'client' && navigate(`/project/${project.id}`)}
     >
       <CardHeader>
         <div className="flex justify-between items-start">
