@@ -13,11 +13,13 @@ import Header from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useUserType } from "@/hooks/useUserType";
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isAdmin = useIsAdmin();
+  const userType = useUserType();
   const [activeTab, setActiveTab] = useState<"projects" | "consultants" | "admin">("projects");
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -168,12 +170,14 @@ const Index = () => {
           >
             Projects
           </Button>
-          <Button
-            variant={activeTab === "consultants" ? "default" : "outline"}
-            onClick={() => setActiveTab("consultants")}
-          >
-            Consultants
-          </Button>
+          {userType === 'staff' && (
+            <Button
+              variant={activeTab === "consultants" ? "default" : "outline"}
+              onClick={() => setActiveTab("consultants")}
+            >
+              Consultants
+            </Button>
+          )}
           {isAdmin && (
             <Button
               variant={activeTab === "admin" ? "default" : "outline"}
@@ -191,7 +195,7 @@ const Index = () => {
             onDelete={handleDeleteProject}
             onNew={() => setProjectDialogOpen(true)}
           />
-        ) : activeTab === "consultants" ? (
+        ) : activeTab === "consultants" && userType === 'staff' ? (
           <ConsultantList
             consultantGroups={consultantGroups}
             onEditGroup={handleEditGroup}

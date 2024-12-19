@@ -196,6 +196,7 @@ export type Database = {
           is_admin: boolean | null
           role: string | null
           updated_at: string
+          user_type: string
         }
         Insert: {
           company?: string | null
@@ -205,6 +206,7 @@ export type Database = {
           is_admin?: boolean | null
           role?: string | null
           updated_at?: string
+          user_type?: string
         }
         Update: {
           company?: string | null
@@ -214,6 +216,7 @@ export type Database = {
           is_admin?: boolean | null
           role?: string | null
           updated_at?: string
+          user_type?: string
         }
         Relationships: []
       }
