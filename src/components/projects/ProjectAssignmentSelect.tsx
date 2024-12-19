@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -19,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface ProjectAssignmentSelectProps {
   projectId: string;
@@ -59,11 +59,9 @@ const ProjectAssignmentSelect = ({
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
-        <Button variant="outline" className="w-full justify-between" disabled>
-          Loading users...
-        </Button>
-      </div>
+      <Button variant="outline" className="w-full justify-between" disabled>
+        Loading users...
+      </Button>
     );
   }
 
