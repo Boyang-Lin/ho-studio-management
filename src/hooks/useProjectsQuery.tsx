@@ -15,11 +15,26 @@ export const useProjectsQuery = () => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      // Only filter for non-admin staff users
-      if (userType === 'staff' && !isAdmin) {
+      // Admin sees all projects
+      if (isAdmin) {
+        const { data, error } = await query;
+        if (error) throw error;
+        return data;
+      }
+
+      // Staff sees only assigned projects
+      if (userType === 'staff') {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           query = query.eq('assigned_staff_id', user.id);
+        }
+      }
+
+      // Client sees only assigned projects
+      if (userType === 'client') {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          query = query.eq('assigned_client_id', user.id);
         }
       }
 
