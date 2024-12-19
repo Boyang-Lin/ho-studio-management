@@ -27,13 +27,7 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("project_assignments")
-        .select(`
-          user_id,
-          profiles (
-            id,
-            full_name
-          )
-        `)
+        .select("user_id, profiles!inner(id, full_name)")
         .eq("project_id", project.id);
 
       if (error) {
@@ -45,9 +39,9 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
 
       // Transform the data to match the expected type
       return data.map(item => ({
-        id: item.profiles?.id || '',
-        full_name: item.profiles?.full_name || ''
-      })).filter(item => item.id && item.full_name);
+        id: item.profiles.id,
+        full_name: item.profiles.full_name
+      }));
     },
   });
 
