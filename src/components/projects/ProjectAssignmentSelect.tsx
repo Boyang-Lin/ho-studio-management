@@ -29,14 +29,14 @@ interface ProjectAssignmentSelectProps {
 
 const ProjectAssignmentSelect = ({
   projectId,
-  currentAssignedUsers,
+  currentAssignedUsers = [], // Provide default empty array
   onAssign,
   onUnassign,
 }: ProjectAssignmentSelectProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: users = [] } = useQuery({
+  const { data: users = [], isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
       const { data: profiles, error } = await supabase
@@ -50,12 +50,22 @@ const ProjectAssignmentSelect = ({
           title: "Error",
           description: "Failed to load users",
         });
-        throw error;
+        return [];
       }
 
-      return profiles;
+      return profiles || [];
     },
   });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        <Button variant="outline" className="w-full justify-between" disabled>
+          Loading users...
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
@@ -110,7 +120,7 @@ const ProjectAssignmentSelect = ({
       </Popover>
 
       <div className="flex flex-wrap gap-2">
-        {currentAssignedUsers.map((user) => (
+        {(currentAssignedUsers || []).map((user) => (
           <Badge
             key={user.id}
             variant="secondary"
