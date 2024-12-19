@@ -17,6 +17,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         if (error) {
           console.error("Session error:", error);
           if (mounted) {
+            await supabase.auth.signOut();
             navigate("/login", { replace: true });
           }
           return;
@@ -29,24 +30,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        // Verify the session is still valid
-        const { error: userError } = await supabase.auth.getUser();
-        if (userError) {
-          console.error("User verification error:", userError);
-          if (mounted) {
-            // Force sign out if session is invalid
-            await supabase.auth.signOut();
-            navigate("/login", { replace: true });
-          }
-          return;
-        }
-
         if (mounted) {
           setIsLoading(false);
         }
       } catch (error) {
         console.error("Session check error:", error);
         if (mounted) {
+          await supabase.auth.signOut();
           navigate("/login", { replace: true });
         }
       }

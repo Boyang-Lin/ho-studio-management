@@ -13,6 +13,10 @@ const Header = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      // Clear any local storage or state if needed
+      localStorage.removeItem('supabase.auth.token');
+      
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
