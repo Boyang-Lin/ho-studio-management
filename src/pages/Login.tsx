@@ -2,19 +2,30 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Container from "@/components/Container";
+import { Loader2 } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if there's an existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/", { replace: true });
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (session && !error) {
+          navigate("/", { replace: true });
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+      } finally {
+        setIsLoading(false);
       }
-    });
+    };
+
+    // Check initial session
+    checkSession();
 
     // Listen for auth state changes
     const {
@@ -28,6 +39,14 @@ const Login = () => {
     // Cleanup subscription
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
