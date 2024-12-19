@@ -18,16 +18,41 @@ export const useProjects = () => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      // If user is not admin and is staff, only show assigned projects
+      // If user is not admin
       if (!isAdmin) {
         if (userType === 'staff') {
-          query = query.or(`assigned_staff_id.eq.${user.id},user_id.eq.${user.id}`);
+          // Staff can see projects they created, are assigned to, or are in project_assignments
+          query = query.or(
+            `user_id.eq.${user.id},` +
+            `assigned_staff_id.eq.${user.id},` +
+            `id.in.(${
+              supabase
+                .from('project_assignments')
+                .select('project_id')
+                .eq('user_id', user.id)
+                .then(({ data }) => data?.map(d => d.project_id))
+            })`
+          );
+        } else if (userType === 'client') {
+          // Clients can only see projects assigned to them
+          query = query.or(
+            `assigned_client_id.eq.${user.id},` +
+            `id.in.(${
+              supabase
+                .from('project_assignments')
+                .select('project_id')
+                .eq('user_id', user.id)
+                .then(({ data }) => data?.map(d => d.project_id))
+            })`
+          );
         }
       }
-      // Admin users will get all projects as no filter is applied
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching projects:", error);
+        throw error;
+      }
       return data;
     },
   });
