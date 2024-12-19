@@ -13,6 +13,23 @@ export const useProjects = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // First, get project IDs from assignments if needed
+      let assignedProjectIds: string[] = [];
+      if (!isAdmin) {
+        const { data: assignments, error: assignmentsError } = await supabase
+          .from('project_assignments')
+          .select('project_id')
+          .eq('user_id', user.id);
+
+        if (assignmentsError) {
+          console.error("Error fetching assignments:", assignmentsError);
+          throw assignmentsError;
+        }
+
+        assignedProjectIds = assignments?.map(a => a.project_id) || [];
+      }
+
+      // Build the main query
       let query = supabase
         .from("projects")
         .select("*")
@@ -23,27 +40,20 @@ export const useProjects = () => {
         if (userType === 'staff') {
           // Staff can see projects they created, are assigned to, or are in project_assignments
           query = query.or(
-            `user_id.eq.${user.id},` +
-            `assigned_staff_id.eq.${user.id},` +
-            `id.in.(${
-              supabase
-                .from('project_assignments')
-                .select('project_id')
-                .eq('user_id', user.id)
-                .then(({ data }) => data?.map(d => d.project_id))
-            })`
+            `user_id.eq.${user.id},assigned_staff_id.eq.${user.id}${
+              assignedProjectIds.length > 0 
+                ? `,id.in.(${assignedProjectIds.join(',')})` 
+                : ''
+            }`
           );
         } else if (userType === 'client') {
           // Clients can only see projects assigned to them
           query = query.or(
-            `assigned_client_id.eq.${user.id},` +
-            `id.in.(${
-              supabase
-                .from('project_assignments')
-                .select('project_id')
-                .eq('user_id', user.id)
-                .then(({ data }) => data?.map(d => d.project_id))
-            })`
+            `assigned_client_id.eq.${user.id}${
+              assignedProjectIds.length > 0 
+                ? `,id.in.(${assignedProjectIds.join(',')})` 
+                : ''
+            }`
           );
         }
       }
