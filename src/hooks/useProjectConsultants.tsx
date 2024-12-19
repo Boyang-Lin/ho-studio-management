@@ -26,6 +26,7 @@ export const useProjectConsultants = (projectId: string | undefined) => {
       if (error) throw error;
       return data;
     },
+    enabled: !!projectId,
   });
 
   const handleAssignConsultant = async (consultant: any) => {
@@ -33,6 +34,7 @@ export const useProjectConsultants = (projectId: string | undefined) => {
     
     try {
       if (isAssigned) {
+        // Delete existing assignment
         const { error } = await supabase
           .from("project_consultants")
           .delete()
@@ -41,9 +43,10 @@ export const useProjectConsultants = (projectId: string | undefined) => {
 
         if (error) throw error;
 
+        // Update local state
         queryClient.setQueryData(
           ["project_consultants", projectId],
-          (oldData: any) => oldData.filter((pc: any) => pc.consultant_id !== consultant.id)
+          (oldData: any) => oldData?.filter((pc: any) => pc.consultant_id !== consultant.id) || []
         );
 
         toast({
@@ -51,7 +54,8 @@ export const useProjectConsultants = (projectId: string | undefined) => {
           description: "Consultant removed successfully",
         });
       } else {
-        const { data: insertedData, error } = await supabase
+        // Create new assignment
+        const { data, error } = await supabase
           .from("project_consultants")
           .insert({
             project_id: projectId,
@@ -71,9 +75,10 @@ export const useProjectConsultants = (projectId: string | undefined) => {
 
         if (error) throw error;
 
+        // Update local state
         queryClient.setQueryData(
           ["project_consultants", projectId],
-          (oldData: any) => [...(oldData || []), insertedData]
+          (oldData: any) => [...(oldData || []), data]
         );
 
         toast({
@@ -81,7 +86,7 @@ export const useProjectConsultants = (projectId: string | undefined) => {
           description: "Consultant assigned successfully",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
       toast({
         variant: "destructive",
