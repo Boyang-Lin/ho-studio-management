@@ -3,12 +3,26 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdminSection = () => {
-  const { data: userCount = 0 } = useQuery({
-    queryKey: ["userCount"],
+  const { data: staffCount = 0 } = useQuery({
+    queryKey: ["staffCount"],
     queryFn: async () => {
       const { count, error } = await supabase
         .from("profiles")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .eq('user_type', 'staff');
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  const { data: clientCount = 0 } = useQuery({
+    queryKey: ["clientCount"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true })
+        .eq('user_type', 'client');
       
       if (error) throw error;
       return count || 0;
@@ -42,13 +56,21 @@ const AdminSection = () => {
   return (
     <section className="space-y-6">
       <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Total Users</CardTitle>
+            <CardTitle>Staff Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{userCount}</p>
+            <p className="text-3xl font-bold">{staffCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Client Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{clientCount}</p>
           </CardContent>
         </Card>
         <Card>

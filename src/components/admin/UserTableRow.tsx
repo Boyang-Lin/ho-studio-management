@@ -13,12 +13,15 @@ interface User {
 
 interface UserTableRowProps {
   user: User;
-  onSave: (id: string, values: { role: string }) => void;
+  onSave: (id: string, values: { role: string, full_name: string }) => void;
 }
 
 const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValues, setEditValues] = useState({ role: user.role || "" });
+  const [editValues, setEditValues] = useState({ 
+    role: user.role || "",
+    full_name: user.full_name || "" 
+  });
 
   const handleSave = () => {
     onSave(user.id, editValues);
@@ -27,7 +30,19 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
 
   return (
     <TableRow>
-      <TableCell>{user.full_name || "N/A"}</TableCell>
+      <TableCell>
+        {isEditing ? (
+          <Input
+            value={editValues.full_name}
+            onChange={(e) =>
+              setEditValues({ ...editValues, full_name: e.target.value })
+            }
+            placeholder="Enter full name"
+          />
+        ) : (
+          user.full_name || "N/A"
+        )}
+      </TableCell>
       <TableCell>
         {isEditing ? (
           <Input
