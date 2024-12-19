@@ -27,11 +27,13 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("project_assignments")
-        .select("user_id, profiles(id, full_name)")
+        .select("profiles:user_id(id, full_name)")
         .eq("project_id", project.id);
 
       if (error) throw error;
-      return data.map((assignment) => assignment.profiles);
+      
+      // Transform the data to match the expected type
+      return data.map(item => item.profiles) as Array<{ id: string; full_name: string }>;
     },
   });
 
