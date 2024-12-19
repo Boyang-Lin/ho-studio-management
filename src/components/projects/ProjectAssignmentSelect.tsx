@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -15,21 +16,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProjectAssignmentSelectProps {
   projectId: string;
-  currentAssignedUsers: Array<{ id: string; full_name: string }>;
-  onAssign: (userId: string) => void;
-  onUnassign: (userId: string) => void;
+  currentAssignedUsers?: Array<{ id: string; full_name: string }>;
+  onAssign?: (userId: string) => void;
+  onUnassign?: (userId: string) => void;
 }
 
 const ProjectAssignmentSelect = ({
   projectId,
-  currentAssignedUsers = [], // Provide default empty array
+  currentAssignedUsers = [],
   onAssign,
   onUnassign,
 }: ProjectAssignmentSelectProps) => {
@@ -88,7 +88,7 @@ const ProjectAssignmentSelect = ({
             <CommandGroup>
               <ScrollArea className="h-64">
                 {users.map((user) => {
-                  const isAssigned = currentAssignedUsers.some(
+                  const isAssigned = currentAssignedUsers?.some(
                     (u) => u.id === user.id
                   );
                   return (
@@ -97,9 +97,9 @@ const ProjectAssignmentSelect = ({
                       value={user.id}
                       onSelect={() => {
                         if (isAssigned) {
-                          onUnassign(user.id);
+                          onUnassign?.(user.id);
                         } else {
-                          onAssign(user.id);
+                          onAssign?.(user.id);
                         }
                       }}
                     >
@@ -120,12 +120,12 @@ const ProjectAssignmentSelect = ({
       </Popover>
 
       <div className="flex flex-wrap gap-2">
-        {(currentAssignedUsers || []).map((user) => (
+        {currentAssignedUsers?.map((user) => (
           <Badge
             key={user.id}
             variant="secondary"
             className="cursor-pointer"
-            onClick={() => onUnassign(user.id)}
+            onClick={() => onUnassign?.(user.id)}
           >
             {user.full_name}
             <span className="ml-1">×</span>
