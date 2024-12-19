@@ -11,14 +11,14 @@ import ProjectList from "@/components/projects/ProjectList";
 import ConsultantList from "@/components/consultants/ConsultantList";
 import Header from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
-import AdminSection from "@/components/admin/AdminSection";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isAdmin = useIsAdmin();
-  const [activeTab, setActiveTab] = useState<"projects" | "consultants">("projects");
+  const [activeTab, setActiveTab] = useState<"projects" | "consultants" | "admin">("projects");
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [consultantDialogOpen, setConsultantDialogOpen] = useState(false);
@@ -152,8 +152,6 @@ const Index = () => {
       <Header onLogout={handleLogout} />
 
       <Container className="py-8 space-y-8">
-        {isAdmin && <AdminSection />}
-
         <div className="flex space-x-4">
           <Button
             variant={activeTab === "projects" ? "default" : "outline"}
@@ -167,6 +165,14 @@ const Index = () => {
           >
             Consultants
           </Button>
+          {isAdmin && (
+            <Button
+              variant={activeTab === "admin" ? "default" : "outline"}
+              onClick={() => setActiveTab("admin")}
+            >
+              Admin Dashboard
+            </Button>
+          )}
         </div>
 
         {activeTab === "projects" ? (
@@ -176,7 +182,7 @@ const Index = () => {
             onDelete={handleDeleteProject}
             onNew={() => setProjectDialogOpen(true)}
           />
-        ) : (
+        ) : activeTab === "consultants" ? (
           <ConsultantList
             consultantGroups={consultantGroups}
             onEditGroup={handleEditGroup}
@@ -186,6 +192,8 @@ const Index = () => {
             onNewGroup={() => setGroupDialogOpen(true)}
             onNewConsultant={() => setConsultantDialogOpen(true)}
           />
+        ) : (
+          isAdmin && <AdminDashboard />
         )}
       </Container>
 
