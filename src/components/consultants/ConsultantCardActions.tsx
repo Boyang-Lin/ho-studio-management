@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 interface ConsultantCardActionsProps {
   consultantId: string;
@@ -30,6 +31,7 @@ export const ConsultantCardActions = ({
   isAssigned = false,
   variant = 'default',
 }: ConsultantCardActionsProps) => {
+  const isAdmin = useIsAdmin();
   const isSelectionVariant = variant === 'selection';
 
   if (isSelectionVariant) {
@@ -40,6 +42,10 @@ export const ConsultantCardActions = ({
         aria-label={isAssigned ? "Remove consultant" : "Assign consultant"}
       />
     );
+  }
+
+  if (!isAdmin) {
+    return null;
   }
 
   return (
