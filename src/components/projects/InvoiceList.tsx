@@ -41,13 +41,15 @@ interface InvoiceListProps {
   }>;
   isLoading: boolean;
   onEdit: (invoice: any) => void;
+  readOnly?: boolean;
 }
 
-const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
+const InvoiceList = ({ invoices, isLoading, onEdit, readOnly = false }: InvoiceListProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const handleMarkAsPaid = async (invoiceId: string) => {
+    if (readOnly) return;
     try {
       const { error } = await supabase
         .from("consultant_invoices")
@@ -77,6 +79,7 @@ const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
   };
 
   const handleDelete = async (invoiceId: string) => {
+    if (readOnly) return;
     try {
       const { error } = await supabase
         .from("consultant_invoices")
@@ -148,7 +151,7 @@ const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
                 >
                   {invoice.status}
                 </Badge>
-                {invoice.status !== 'Paid' && (
+                {!readOnly && invoice.status !== 'Paid' && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -162,36 +165,38 @@ const InvoiceList = ({ invoices, isLoading, onEdit }: InvoiceListProps) => {
               </div>
             </TableCell>
             <TableCell className="text-right">
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(invoice)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this invoice? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(invoice.id)}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              {!readOnly && (
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(invoice)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this invoice? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(invoice.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
             </TableCell>
           </TableRow>
         ))}
