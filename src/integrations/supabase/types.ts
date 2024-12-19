@@ -191,6 +191,7 @@ export type Database = {
         Row: {
           company: string | null
           created_at: string
+          email: string
           full_name: string
           id: string
           is_admin: boolean | null
@@ -201,6 +202,7 @@ export type Database = {
         Insert: {
           company?: string | null
           created_at?: string
+          email: string
           full_name: string
           id: string
           is_admin?: boolean | null
@@ -211,6 +213,7 @@ export type Database = {
         Update: {
           company?: string | null
           created_at?: string
+          email?: string
           full_name?: string
           id?: string
           is_admin?: boolean | null

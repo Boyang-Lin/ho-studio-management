@@ -9,9 +9,7 @@ interface User {
   role: string;
   is_admin: boolean;
   created_at: string;
-  auth_user: {
-    email: string;
-  };
+  email: string;
 }
 
 interface UserTableRowProps {
@@ -46,7 +44,7 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
           user.full_name || "N/A"
         )}
       </TableCell>
-      <TableCell>{user.auth_user?.email || "N/A"}</TableCell>
+      <TableCell>{user.email || "N/A"}</TableCell>
       <TableCell>
         {isEditing ? (
           <Input

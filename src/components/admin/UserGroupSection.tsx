@@ -14,9 +14,7 @@ interface User {
   is_admin: boolean;
   created_at: string;
   user_type: string;
-  auth_user: {
-    email: string;
-  };
+  email: string;
 }
 
 interface UserGroupSectionProps {
