@@ -22,6 +22,7 @@ export const useProjects = () => {
       if (!isAdmin && userType === 'staff') {
         query = query.eq('assigned_staff_id', user.id);
       }
+      // No filtering for admin users - they see all projects
 
       const { data, error } = await query;
       if (error) throw error;
