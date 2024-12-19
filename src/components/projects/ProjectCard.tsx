@@ -27,7 +27,13 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("project_assignments")
-        .select("profiles:user_id(id, full_name)")
+        .select(`
+          user_id,
+          profiles!project_assignments_user_id_fkey (
+            id,
+            full_name
+          )
+        `)
         .eq("project_id", project.id);
 
       if (error) throw error;
