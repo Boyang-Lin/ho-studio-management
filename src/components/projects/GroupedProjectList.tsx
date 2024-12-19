@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ProjectCard from "./ProjectCard";
 import { Project } from "@/types/project";
+import { useUserType } from "@/hooks/useUserType";
 
 interface GroupedProjectListProps {
   projects: Array<Project>;
@@ -11,6 +12,9 @@ interface GroupedProjectListProps {
 }
 
 const GroupedProjectList = ({ projects, onEdit, onDelete, onNew }: GroupedProjectListProps) => {
+  const userType = useUserType();
+  const isStaff = userType === 'staff';
+  
   const inProgressProjects = projects.filter(project => project.status !== "Approved");
   const completedProjects = projects.filter(project => project.status === "Approved");
 
@@ -18,10 +22,12 @@ const GroupedProjectList = ({ projects, onEdit, onDelete, onNew }: GroupedProjec
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Projects</h2>
-        <Button onClick={onNew}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Project
-        </Button>
+        {isStaff && (
+          <Button onClick={onNew}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
+        )}
       </div>
 
       <div className="space-y-8">
