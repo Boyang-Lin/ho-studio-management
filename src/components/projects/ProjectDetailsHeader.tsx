@@ -29,6 +29,25 @@ const PROJECT_STATUSES = [
   "Canceled",
 ] as const;
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "Design Stage":
+      return "bg-blue-100 text-blue-800";
+    case "Coordination Stage":
+      return "bg-purple-100 text-purple-800";
+    case "Submitted":
+      return "bg-yellow-100 text-yellow-800";
+    case "Approved":
+      return "bg-green-100 text-green-800";
+    case "On hold":
+      return "bg-orange-100 text-orange-800";
+    case "Canceled":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 export const ProjectDetailsHeader = ({ project }: ProjectDetailsHeaderProps) => {
   const isAdmin = useIsAdmin();
   const userType = useUserType();
@@ -71,15 +90,15 @@ export const ProjectDetailsHeader = ({ project }: ProjectDetailsHeaderProps) => 
               value={project.status}
               onValueChange={handleStatusChange}
             >
-              <SelectTrigger className="bg-white border-[#9b87f5] text-[#1A1F2C] hover:border-[#7E69AB] focus:ring-[#9b87f5]">
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#9b87f5] shadow-lg">
+              <SelectContent className="bg-white">
                 {PROJECT_STATUSES.map((status) => (
                   <SelectItem 
                     key={status} 
                     value={status}
-                    className="hover:bg-[#E5DEFF] text-[#1A1F2C] focus:bg-[#D6BCFA] focus:text-[#1A1F2C]"
+                    className={`${getStatusColor(status)} rounded-full text-xs font-medium px-2.5 py-0.5`}
                   >
                     {status}
                   </SelectItem>
