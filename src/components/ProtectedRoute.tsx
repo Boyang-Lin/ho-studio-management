@@ -7,70 +7,28 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
+    // Check current session immediately
     const checkSession = async () => {
-      try {
-        // First try to get the session from localStorage
-        const storedSession = localStorage.getItem('sb-axogrfruqxnddnrrgzua-auth-token');
-        
-        if (!storedSession) {
-          console.log("No stored session found");
-          if (mounted) {
-            navigate("/login", { replace: true });
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        // Then verify the session with Supabase
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (mounted) {
-          if (error) {
-            console.error("Session error:", error);
-            navigate("/login", { replace: true });
-          } else if (!session) {
-            console.log("No active session found");
-            navigate("/login", { replace: true });
-          }
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Session check error:", error);
-        if (mounted) {
-          navigate("/login", { replace: true });
-          setIsLoading(false);
-        }
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        navigate("/login");
       }
+      setIsLoading(false);
     };
 
-    // Initial session check
     checkSession();
 
-    // Listen for auth state changes
+    // Also listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event);
-        
-        if (mounted) {
-          if (event === 'SIGNED_OUT' || !session) {
-            navigate("/login", { replace: true });
-          } else if (event === 'SIGNED_IN') {
-            // Ensure the session is properly stored
-            const currentSession = await supabase.auth.getSession();
-            if (!currentSession.data.session) {
-              navigate("/login", { replace: true });
-            }
-          }
-          setIsLoading(false);
+        if (event === 'SIGNED_OUT' || !session) {
+          navigate("/login");
         }
+        setIsLoading(false);
       }
     );
 
-    // Cleanup
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
