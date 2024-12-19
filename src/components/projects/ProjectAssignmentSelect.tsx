@@ -33,14 +33,14 @@ const ProjectAssignmentSelect = ({
 
   return (
     <Select
-      value={currentAssignedUserId || ""}
-      onValueChange={(value) => onAssign(value || null)}
+      value={currentAssignedUserId || "unassigned"}
+      onValueChange={(value) => onAssign(value === "unassigned" ? null : value)}
     >
       <SelectTrigger className="w-full">
         <SelectValue placeholder="Assign to user" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="">Unassigned</SelectItem>
+        <SelectItem value="unassigned">Unassigned</SelectItem>
         {users.map((user) => (
           <SelectItem key={user.id} value={user.id}>
             {user.full_name}
