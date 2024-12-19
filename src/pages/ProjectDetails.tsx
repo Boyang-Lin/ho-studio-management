@@ -18,6 +18,7 @@ const ProjectDetails = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("engaged-consultants");
   const userType = useUserType();
+  const isClient = userType === 'client';
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ["project", id],
@@ -96,7 +97,7 @@ const ProjectDetails = () => {
   }, [id, queryClient]);
 
   const handleAssignConsultant = async (consultant: any) => {
-    if (userType === 'client') return; // Prevent clients from assigning consultants
+    if (isClient) return; // Prevent clients from assigning consultants
     
     const isAssigned = projectConsultants.some(pc => pc.consultant_id === consultant.id);
     
@@ -166,34 +167,12 @@ const ProjectDetails = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            {userType !== 'client' && (
-              <TabsTrigger value="all-consultants" className="space-x-2">
-                <Users className="h-4 w-4" />
-                <span>All Consultants</span>
-              </TabsTrigger>
-            )}
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="engaged-consultants" className="space-x-2">
               <UserCheck className="h-4 w-4" />
               <span>Engaged Consultants</span>
             </TabsTrigger>
-            {userType !== 'client' && (
-              <TabsTrigger value="invoices" className="space-x-2">
-                <CreditCard className="h-4 w-4" />
-                <span>Invoices & Payment</span>
-              </TabsTrigger>
-            )}
           </TabsList>
-
-          {userType !== 'client' && (
-            <TabsContent value="all-consultants">
-              <ConsultantGroupsTab
-                consultantGroups={consultantGroups}
-                projectConsultants={projectConsultants}
-                onAssignConsultant={handleAssignConsultant}
-              />
-            </TabsContent>
-          )}
 
           <TabsContent value="engaged-consultants">
             <ConsultantGroupsTab
@@ -201,18 +180,9 @@ const ProjectDetails = () => {
               projectConsultants={projectConsultants}
               onAssignConsultant={handleAssignConsultant}
               filterAssignedOnly
-              readOnly={userType === 'client'}
+              readOnly={isClient}
             />
           </TabsContent>
-
-          {userType !== 'client' && (
-            <TabsContent value="invoices">
-              <PaymentManagementTab
-                projectId={id || ''}
-                projectConsultants={projectConsultants}
-              />
-            </TabsContent>
-          )}
         </Tabs>
       </Container>
     </div>
