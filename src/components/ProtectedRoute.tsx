@@ -7,28 +7,49 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check current session immediately
+    let mounted = true;
+
+    // Check current session
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
-        navigate("/login");
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (mounted) {
+          if (error || !session) {
+            console.log("No session found, redirecting to login");
+            navigate("/login", { replace: true });
+          }
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+        if (mounted) {
+          navigate("/login", { replace: true });
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
     };
 
+    // Initial session check
     checkSession();
 
-    // Also listen for auth state changes
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
-          navigate("/login");
+        console.log("Auth state changed:", event);
+        
+        if (mounted) {
+          if (event === 'SIGNED_OUT' || !session) {
+            navigate("/login", { replace: true });
+          }
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
+    // Cleanup
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
