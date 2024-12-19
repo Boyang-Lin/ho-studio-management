@@ -32,6 +32,16 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
     setIsEditing(false);
   };
 
+  const handleEdit = () => {
+    // Reset edit values to current user values when starting to edit
+    setEditValues({
+      role: user.role || "",
+      full_name: user.full_name || "",
+      user_type: user.user_type || "staff"
+    });
+    setIsEditing(true);
+  };
+
   return (
     <TableRow>
       <TableCell>
@@ -110,7 +120,7 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsEditing(true)}
+            onClick={handleEdit}
           >
             Edit
           </Button>
