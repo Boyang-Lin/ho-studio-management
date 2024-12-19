@@ -6,7 +6,6 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useUserType } from "@/hooks/useUserType";
 import TabNavigation from "@/components/layout/TabNavigation";
 import TabContent from "@/components/layout/TabContent";
-import { useProjects } from "@/hooks/useProjects";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import ProjectDialogManager from "@/components/projects/ProjectDialogManager";
@@ -25,12 +24,22 @@ const Index = () => {
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
   const { data: projects = [], refetch: refetchProjects } = useQuery({
-    queryKey: ["projects"],
+    queryKey: ["projects", userType],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("projects")
         .select("*")
         .order("created_at", { ascending: false });
+
+      // Only filter for staff users
+      if (userType === 'staff') {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          query = query.eq('assigned_staff_id', user.id);
+        }
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching projects:", error);
