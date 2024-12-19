@@ -24,13 +24,20 @@ export const ProjectTabs = ({
   activeTab,
   setActiveTab,
 }: ProjectTabsProps) => {
+  // If client is viewing, default to engaged-consultants tab
+  if (isClient && activeTab === "all-consultants") {
+    setActiveTab("engaged-consultants");
+  }
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
-        <TabsTrigger value="all-consultants" className="space-x-2">
-          <Users className="h-4 w-4" />
-          <span>All Consultants</span>
-        </TabsTrigger>
+      <TabsList className={`grid w-full ${isClient ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        {!isClient && (
+          <TabsTrigger value="all-consultants" className="space-x-2">
+            <Users className="h-4 w-4" />
+            <span>All Consultants</span>
+          </TabsTrigger>
+        )}
         <TabsTrigger value="engaged-consultants" className="space-x-2">
           <UserCheck className="h-4 w-4" />
           <span>Engaged Consultants</span>
@@ -41,15 +48,17 @@ export const ProjectTabs = ({
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="all-consultants">
-        <ConsultantGroupsTab
-          consultantGroups={consultantGroups}
-          projectConsultants={projectConsultants}
-          onAssignConsultant={onAssignConsultant}
-          variant="selection"
-          readOnly={!isStaff}
-        />
-      </TabsContent>
+      {!isClient && (
+        <TabsContent value="all-consultants">
+          <ConsultantGroupsTab
+            consultantGroups={consultantGroups}
+            projectConsultants={projectConsultants}
+            onAssignConsultant={onAssignConsultant}
+            variant="selection"
+            readOnly={!isStaff}
+          />
+        </TabsContent>
+      )}
 
       <TabsContent value="engaged-consultants">
         <ConsultantGroupsTab
