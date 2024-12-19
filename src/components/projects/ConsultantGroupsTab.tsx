@@ -80,14 +80,14 @@ const ConsultantGroupsTab = ({
             <h3 className="text-lg font-semibold">{group.name}</h3>
             <div className="grid grid-cols-1 gap-4">
               {group.consultants.map((consultant: any) => (
-                <div key={consultant.projectConsultant.id} className="grid grid-cols-3 gap-4">
-                  <div className="col-span-1">
+                <div key={consultant.projectConsultant.id} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-1">
                     <EngagedConsultantCardWithDialog
                       projectConsultant={consultant.projectConsultant}
                       readOnly={readOnly}
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div className="md:col-span-2">
                     <TaskSummaryCard
                       projectConsultantId={consultant.projectConsultant.id}
                       readOnly={readOnly}

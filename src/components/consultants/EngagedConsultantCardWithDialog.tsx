@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConsultantPaymentInfo } from "./ConsultantPaymentInfo";
 import { Button } from "@/components/ui/button";
@@ -124,61 +124,62 @@ const EngagedConsultantCardWithDialog = ({
         </CardHeader>
       </Card>
 
-      {!readOnly && (
-        <>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{projectConsultant.consultant.name}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-6">
-                <ConsultantPaymentInfo 
-                  projectConsultant={{
-                    ...projectConsultant,
-                    preSelectedConsultantId: projectConsultant.id
-                  }} 
-                />
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">Tasks</h3>
-                    <Button onClick={() => {
-                      setSelectedTask(null);
-                      setTaskDialogOpen(true);
-                    }}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Task
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {tasks.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No tasks yet</p>
-                    ) : (
-                      tasks.map((task) => (
-                        <TaskListItem
-                          key={task.id}
-                          task={task}
-                          onEdit={handleEditTask}
-                          onDelete={handleDeleteTask}
-                          onStatusChange={handleStatusChange}
-                          getTaskStatusColor={getTaskStatusColor}
-                        />
-                      ))
-                    )}
-                  </div>
-                </div>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{projectConsultant.consultant.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <ConsultantPaymentInfo 
+              projectConsultant={{
+                ...projectConsultant,
+                preSelectedConsultantId: projectConsultant.id
+              }} 
+            />
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Tasks</h3>
+                {!readOnly && (
+                  <Button onClick={() => {
+                    setSelectedTask(null);
+                    setTaskDialogOpen(true);
+                  }}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Task
+                  </Button>
+                )}
               </div>
-            </DialogContent>
-          </Dialog>
+              
+              <div className="space-y-2">
+                {tasks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No tasks yet</p>
+                ) : (
+                  tasks.map((task) => (
+                    <TaskListItem
+                      key={task.id}
+                      task={task}
+                      onEdit={handleEditTask}
+                      onDelete={handleDeleteTask}
+                      onStatusChange={handleStatusChange}
+                      getTaskStatusColor={getTaskStatusColor}
+                      readOnly={readOnly}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-          <TaskDialog
-            open={taskDialogOpen}
-            onOpenChange={setTaskDialogOpen}
-            projectConsultantId={projectConsultant.id}
-            task={selectedTask}
-          />
-        </>
+      {!readOnly && (
+        <TaskDialog
+          open={taskDialogOpen}
+          onOpenChange={setTaskDialogOpen}
+          projectConsultantId={projectConsultant.id}
+          task={selectedTask}
+        />
       )}
     </>
   );

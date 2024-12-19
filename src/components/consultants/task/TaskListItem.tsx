@@ -25,6 +25,7 @@ interface TaskListItemProps {
   onDelete: (taskId: string) => void;
   onStatusChange: (taskId: string, currentStatus: string) => void;
   getTaskStatusColor: (status: string) => string;
+  readOnly?: boolean;
 }
 
 export const TaskListItem = ({
@@ -33,50 +34,55 @@ export const TaskListItem = ({
   onDelete,
   onStatusChange,
   getTaskStatusColor,
+  readOnly = false,
 }: TaskListItemProps) => {
   return (
     <div className="p-4 rounded-lg border bg-card text-card-foreground relative group">
       <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(task);
-          }}
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
+        {!readOnly && (
+          <>
             <Button
               variant="ghost"
               size="icon"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(task);
+              }}
             >
-              <Trash2 className="h-4 w-4 text-destructive" />
+              <Pencil className="h-4 w-4" />
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Task</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this task? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(task.id);
-                }}
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this task? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(task.id);
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
       </div>
       <h4 className="font-medium">{task.title}</h4>
       {task.description && (
@@ -87,8 +93,9 @@ export const TaskListItem = ({
       <div className="flex items-center gap-2 mt-2">
         <Badge 
           variant="secondary"
-          className={`${getTaskStatusColor(task.status)} cursor-pointer hover:opacity-80`}
+          className={`${getTaskStatusColor(task.status)} ${!readOnly ? 'cursor-pointer hover:opacity-80' : ''}`}
           onClick={(e) => {
+            if (readOnly) return;
             e.stopPropagation();
             onStatusChange(task.id, task.status);
           }}
