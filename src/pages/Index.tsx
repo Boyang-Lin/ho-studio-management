@@ -24,7 +24,22 @@ const Index = () => {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
-  const { data: projects = [], refetch: refetchProjects } = useProjects();
+  const { data: projects = [], refetch: refetchProjects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching projects:", error);
+        throw error;
+      }
+
+      return data;
+    },
+  });
 
   const { data: consultantGroups = [], refetch: refetchConsultantGroups } = useQuery({
     queryKey: ["consultant_groups"],
