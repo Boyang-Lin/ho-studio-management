@@ -25,23 +25,31 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   const { data: assignedUsers = [] } = useQuery({
     queryKey: ["project_assignments", project.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: assignments, error } = await supabase
         .from("project_assignments")
-        .select("user_id, profiles!inner(id, full_name)")
+        .select("user_id")
         .eq("project_id", project.id);
 
       if (error) {
         console.error("Error fetching project assignments:", error);
         return [];
       }
-      
-      if (!data) return [];
 
-      // Transform the data to match the expected type
-      return data.map(item => ({
-        id: item.profiles.id,
-        full_name: item.profiles.full_name
-      }));
+      if (!assignments?.length) return [];
+
+      const userIds = assignments.map(a => a.user_id);
+      
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", userIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        return [];
+      }
+
+      return profiles || [];
     },
   });
 
