@@ -32,7 +32,6 @@ export const useTaskForm = ({ projectConsultantId, task, onSuccess }: UseTaskFor
       title: task?.title || "",
       description: task?.description || "",
       due_date: task?.due_date ? task.due_date.split('T')[0] : "",
-      status: (task?.status as "Pending Input" | "In Progress" | "Completed") || "Pending Input",
     },
   });
 
@@ -46,7 +45,6 @@ export const useTaskForm = ({ projectConsultantId, task, onSuccess }: UseTaskFor
             title: values.title,
             description: values.description,
             due_date: values.due_date ? `${values.due_date}T00:00:00` : null,
-            status: values.status,
           })
           .eq('id', task.id);
 
@@ -64,7 +62,7 @@ export const useTaskForm = ({ projectConsultantId, task, onSuccess }: UseTaskFor
             title: values.title,
             description: values.description,
             due_date: values.due_date ? `${values.due_date}T00:00:00` : null,
-            status: values.status,
+            status: "In Progress",
           });
 
         if (error) throw error;
