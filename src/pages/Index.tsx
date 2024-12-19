@@ -66,11 +66,6 @@ const Index = () => {
     },
   });
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
-
   const handleDeleteProject = async (id: string) => {
     const { error } = await supabase.from("projects").delete().eq("id", id);
     
@@ -160,7 +155,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <Header onLogout={handleLogout} />
+      <Header />
 
       <Container className="py-8 space-y-8">
         <div className="flex space-x-4">
