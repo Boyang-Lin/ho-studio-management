@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ProjectCardActions } from "./ProjectCardActions";
 import { ProjectStatusBadge } from "./ProjectStatusBadge";
 import { ProjectDetails } from "./ProjectDetails";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -10,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Project } from "@/types/project";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
+import ProjectActions from "./ProjectActions";
 
 interface ProjectCardProps {
   project: Project;
@@ -72,11 +72,7 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
       <CardHeader>
         <div className="flex justify-between items-start">
           <ProjectStatusBadge status={project.status} />
-          <ProjectCardActions
-            projectId={project.id}
-            onEdit={() => onEdit(project)}
-            onDelete={onDelete}
-          />
+          <ProjectActions project={project} onEdit={onEdit} onDelete={onDelete} />
         </div>
         <ProjectDetails project={project} />
       </CardHeader>
