@@ -1,22 +1,18 @@
 import { useState } from "react";
 import Container from "@/components/Container";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import ProjectDialog from "@/components/projects/ProjectDialog";
 import ConsultantDialog from "@/components/consultants/ConsultantDialog";
 import ConsultantGroupDialog from "@/components/consultants/ConsultantGroupDialog";
-import ProjectList from "@/components/projects/ProjectList";
-import ConsultantList from "@/components/consultants/ConsultantList";
 import Header from "@/components/layout/Header";
-import { Button } from "@/components/ui/button";
-import AdminDashboard from "@/components/admin/AdminDashboard";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useUserType } from "@/hooks/useUserType";
+import TabNavigation from "@/components/layout/TabNavigation";
+import TabContent from "@/components/layout/TabContent";
 
 const Index = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const isAdmin = useIsAdmin();
   const userType = useUserType();
@@ -33,12 +29,6 @@ const Index = () => {
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("is_admin")
-        .eq("id", user.id)
-        .single();
 
       const { data, error } = await supabase
         .from("projects")
@@ -158,51 +148,29 @@ const Index = () => {
       <Header />
 
       <Container className="py-8 space-y-8">
-        <div className="flex space-x-4">
-          <Button
-            variant={activeTab === "projects" ? "default" : "outline"}
-            onClick={() => setActiveTab("projects")}
-          >
-            Projects
-          </Button>
-          {userType === 'staff' && (
-            <Button
-              variant={activeTab === "consultants" ? "default" : "outline"}
-              onClick={() => setActiveTab("consultants")}
-            >
-              Consultants
-            </Button>
-          )}
-          {isAdmin && (
-            <Button
-              variant={activeTab === "admin" ? "default" : "outline"}
-              onClick={() => setActiveTab("admin")}
-            >
-              Admin Dashboard
-            </Button>
-          )}
-        </div>
+        <TabNavigation
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          userType={userType}
+          isAdmin={isAdmin}
+        />
 
-        {activeTab === "projects" ? (
-          <ProjectList
-            projects={projects}
-            onEdit={handleEditProject}
-            onDelete={handleDeleteProject}
-            onNew={() => setProjectDialogOpen(true)}
-          />
-        ) : activeTab === "consultants" && userType === 'staff' ? (
-          <ConsultantList
-            consultantGroups={consultantGroups}
-            onEditGroup={handleEditGroup}
-            onDeleteGroup={handleDeleteGroup}
-            onEditConsultant={handleEditConsultant}
-            onDeleteConsultant={handleDeleteConsultant}
-            onNewGroup={() => setGroupDialogOpen(true)}
-            onNewConsultant={() => setConsultantDialogOpen(true)}
-          />
-        ) : (
-          isAdmin && <AdminDashboard />
-        )}
+        <TabContent
+          activeTab={activeTab}
+          projects={projects}
+          consultantGroups={consultantGroups}
+          userType={userType}
+          isAdmin={isAdmin}
+          onEditProject={handleEditProject}
+          onDeleteProject={handleDeleteProject}
+          onNewProject={() => setProjectDialogOpen(true)}
+          onEditGroup={handleEditGroup}
+          onDeleteGroup={handleDeleteGroup}
+          onEditConsultant={handleEditConsultant}
+          onDeleteConsultant={handleDeleteConsultant}
+          onNewGroup={() => setGroupDialogOpen(true)}
+          onNewConsultant={() => setConsultantDialogOpen(true)}
+        />
       </Container>
 
       <ProjectDialog
