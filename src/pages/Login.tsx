@@ -89,7 +89,6 @@ const Login = () => {
               sign_up: {
                 email_label: "Email",
                 password_label: "Password",
-                full_name_label: "Full Name",
                 button_label: "Sign Up"
               }
             }
