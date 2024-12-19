@@ -111,6 +111,8 @@ const ProjectDetails = () => {
 
         if (error) throw error;
 
+        await queryClient.invalidateQueries({ queryKey: ["project_consultants", id] });
+
         toast({
           title: "Success",
           description: "Consultant removed successfully",
@@ -124,6 +126,8 @@ const ProjectDetails = () => {
           });
 
         if (error) throw error;
+
+        await queryClient.invalidateQueries({ queryKey: ["project_consultants", id] });
 
         toast({
           title: "Success",
