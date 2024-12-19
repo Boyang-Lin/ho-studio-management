@@ -7,17 +7,19 @@ import {
 } from "@/components/ui/table";
 import UserTableRow from "./UserTableRow";
 
+interface User {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  is_admin: boolean;
+  created_at: string;
+  user_type: string;
+}
+
 interface UserGroupSectionProps {
   title: string;
-  users: Array<{
-    id: string;
-    full_name: string;
-    email: string;
-    role: string;
-    is_admin: boolean;
-    created_at: string;
-    user_type: string;
-  }>;
+  users: User[];
   onSave: (id: string, values: { role: string }) => void;
 }
 

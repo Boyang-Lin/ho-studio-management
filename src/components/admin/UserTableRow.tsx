@@ -3,15 +3,17 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+interface User {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  is_admin: boolean;
+  created_at: string;
+}
+
 interface UserTableRowProps {
-  user: {
-    id: string;
-    full_name: string;
-    email: string;
-    role: string;
-    is_admin: boolean;
-    created_at: string;
-  };
+  user: User;
   onSave: (id: string, values: { role: string }) => void;
 }
 

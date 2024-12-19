@@ -12,11 +12,24 @@ const UserList = () => {
     queryFn: async () => {
       const { data: profiles, error } = await supabase
         .from("profiles")
-        .select("id, full_name, email:auth.users!profiles_id_fkey(email), role, is_admin, created_at, user_type")
+        .select(`
+          id,
+          full_name,
+          auth_users:auth.users!profiles_id_fkey(email),
+          role,
+          is_admin,
+          created_at,
+          user_type
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return profiles;
+
+      // Transform the data to flatten the auth_users object
+      return profiles.map((profile: any) => ({
+        ...profile,
+        email: profile.auth_users?.email || "N/A",
+      }));
     },
   });
 
