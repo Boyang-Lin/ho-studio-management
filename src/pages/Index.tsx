@@ -11,10 +11,13 @@ import ProjectList from "@/components/projects/ProjectList";
 import ConsultantList from "@/components/consultants/ConsultantList";
 import Header from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
+import AdminSection from "@/components/admin/AdminSection";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isAdmin = useIsAdmin();
   const [activeTab, setActiveTab] = useState<"projects" | "consultants">("projects");
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -148,8 +151,10 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Header onLogout={handleLogout} />
 
-      <Container className="py-8">
-        <div className="flex space-x-4 mb-6">
+      <Container className="py-8 space-y-8">
+        {isAdmin && <AdminSection />}
+
+        <div className="flex space-x-4">
           <Button
             variant={activeTab === "projects" ? "default" : "outline"}
             onClick={() => setActiveTab("projects")}
