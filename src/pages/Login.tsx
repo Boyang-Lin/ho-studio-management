@@ -95,8 +95,12 @@ const Login = () => {
           }}
           magicLink={false}
           socialLayout="horizontal"
+          showLinks={true}
           additionalData={{
-            full_name: undefined // This will be filled by the user
+            full_name: {
+              required: true,
+              label: "Full Name"
+            }
           }}
         />
       </Container>
