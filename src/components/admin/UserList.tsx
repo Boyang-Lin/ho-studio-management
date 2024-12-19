@@ -14,9 +14,7 @@ const UserList = () => {
         .from("profiles")
         .select(`
           *,
-          auth_user:auth.users(
-            email
-          )
+          auth_user:auth_users(email)
         `)
         .order("created_at", { ascending: false });
 
