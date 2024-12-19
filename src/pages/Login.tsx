@@ -5,20 +5,30 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Container from "@/components/Container";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkSession = async () => {
       try {
+        // Clear any existing session first
+        await supabase.auth.signOut();
+        
         const { data: { session }, error } = await supabase.auth.getSession();
         if (session && !error) {
           navigate("/", { replace: true });
         }
       } catch (error) {
         console.error("Session check error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "There was a problem checking your session. Please try again.",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -30,15 +40,17 @@ const Login = () => {
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
         navigate("/", { replace: true });
+      } else if (event === 'SIGNED_OUT') {
+        setIsLoading(false);
       }
     });
 
     // Cleanup subscription
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   if (isLoading) {
     return (
