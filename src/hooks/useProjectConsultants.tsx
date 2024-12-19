@@ -30,23 +30,23 @@ export const useProjectConsultants = (projectId: string | undefined) => {
   });
 
   const handleAssignConsultant = async (consultant: any) => {
-    const isAssigned = query.data?.some(pc => pc.consultant_id === consultant.id);
+    if (!projectId) return;
+
+    const isAssigned = query.data?.some(pc => pc.consultant_id === consultant);
     
     try {
       if (isAssigned) {
-        // Delete existing assignment
         const { error } = await supabase
           .from("project_consultants")
           .delete()
           .eq("project_id", projectId)
-          .eq("consultant_id", consultant.id);
+          .eq("consultant_id", consultant);
 
         if (error) throw error;
 
-        // Update local state
         queryClient.setQueryData(
           ["project_consultants", projectId],
-          (oldData: any) => oldData?.filter((pc: any) => pc.consultant_id !== consultant.id) || []
+          (oldData: any) => (oldData || []).filter((pc: any) => pc.consultant_id !== consultant)
         );
 
         toast({
@@ -54,12 +54,11 @@ export const useProjectConsultants = (projectId: string | undefined) => {
           description: "Consultant removed successfully",
         });
       } else {
-        // Create new assignment
         const { data, error } = await supabase
           .from("project_consultants")
           .insert({
             project_id: projectId,
-            consultant_id: consultant.id,
+            consultant_id: consultant,
           })
           .select(`
             *,
@@ -75,7 +74,6 @@ export const useProjectConsultants = (projectId: string | undefined) => {
 
         if (error) throw error;
 
-        // Update local state
         queryClient.setQueryData(
           ["project_consultants", projectId],
           (oldData: any) => [...(oldData || []), data]
