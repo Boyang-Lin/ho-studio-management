@@ -9,6 +9,7 @@ interface ProjectDetailsHeaderProps {
     client_contact: string;
     client_email: string;
     estimated_cost: number;
+    status: string;  // Added this field
   };
 }
 
