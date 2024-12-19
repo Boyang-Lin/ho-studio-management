@@ -19,10 +19,12 @@ export const useProjects = () => {
         .order("created_at", { ascending: false });
 
       // If user is not admin and is staff, only show assigned projects
-      if (!isAdmin && userType === 'staff') {
-        query = query.eq('assigned_staff_id', user.id);
+      if (!isAdmin) {
+        if (userType === 'staff') {
+          query = query.or(`assigned_staff_id.eq.${user.id},user_id.eq.${user.id}`);
+        }
       }
-      // No filtering for admin users - they see all projects
+      // Admin users will get all projects as no filter is applied
 
       const { data, error } = await query;
       if (error) throw error;
