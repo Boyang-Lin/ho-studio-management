@@ -24,17 +24,31 @@ const Index = () => {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    },
+  });
+
   const { data: projects = [], refetch: refetchProjects } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { data, error } = await supabase
+      let query = supabase
         .from("projects")
         .select("*")
         .order("created_at", { ascending: false });
 
+      // If user is not admin and is staff, only show assigned projects
+      if (!isAdmin && userType === 'staff') {
+        query = query.eq('assigned_staff_id', user.id);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },

@@ -1,5 +1,7 @@
 import GroupedProjectList from "./GroupedProjectList";
 import { Project } from "@/types/project";
+import { useUserType } from "@/hooks/useUserType";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 interface ProjectListProps {
   projects: Array<Project>;
@@ -9,9 +11,19 @@ interface ProjectListProps {
 }
 
 const ProjectList = ({ projects, onEdit, onDelete, onNew }: ProjectListProps) => {
+  const userType = useUserType();
+  const isAdmin = useIsAdmin();
+
+  // Filter out projects based on user type and permissions
+  const filteredProjects = projects.filter(project => {
+    if (isAdmin) return true;
+    if (userType === 'staff') return true; // Projects are already filtered at query level
+    return false;
+  });
+
   return (
     <GroupedProjectList
-      projects={projects}
+      projects={filteredProjects}
       onEdit={onEdit}
       onDelete={onDelete}
       onNew={onNew}
