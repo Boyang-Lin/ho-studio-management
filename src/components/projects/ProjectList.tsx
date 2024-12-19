@@ -14,16 +14,10 @@ const ProjectList = ({ projects, onEdit, onDelete, onNew }: ProjectListProps) =>
   const userType = useUserType();
   const isAdmin = useIsAdmin();
 
-  // Filter out projects based on user type and permissions
-  const filteredProjects = projects.filter(project => {
-    if (isAdmin) return true; // Admin can see all projects
-    if (userType === 'staff') return true; // Projects are already filtered at query level
-    return false;
-  });
-
+  // Show all projects without filtering
   return (
     <GroupedProjectList
-      projects={filteredProjects}
+      projects={projects}
       onEdit={onEdit}
       onDelete={onDelete}
       onNew={onNew}
