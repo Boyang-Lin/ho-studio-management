@@ -12,15 +12,7 @@ const UserList = () => {
     queryFn: async () => {
       const { data: profiles, error } = await supabase
         .from("profiles")
-        .select(`
-          id,
-          full_name,
-          auth_users:auth.users!profiles_id_fkey(email),
-          role,
-          is_admin,
-          created_at,
-          user_type
-        `)
+        .select("*, auth:auth.users!profiles_id_fkey(email)")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -28,7 +20,7 @@ const UserList = () => {
       // Transform the data to flatten the auth_users object
       return profiles.map((profile: any) => ({
         ...profile,
-        email: profile.auth_users?.email || "N/A",
+        email: profile.auth?.email || "N/A",
       }));
     },
   });
