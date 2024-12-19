@@ -83,6 +83,21 @@ const Login = () => {
           theme="light"
           providers={[]}
           redirectTo={window.location.origin}
+          options={{
+            emailRedirectTo: window.location.origin,
+            metadata: {
+              full_name: undefined // This will be filled by the custom fields
+            },
+            customFields: [
+              {
+                name: 'full_name',
+                type: 'text',
+                label: 'Full Name',
+                placeholder: 'Enter your full name',
+                required: true,
+              }
+            ]
+          }}
         />
       </Container>
     </div>
