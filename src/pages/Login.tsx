@@ -83,22 +83,21 @@ const Login = () => {
           theme="light"
           providers={[]}
           redirectTo={window.location.origin}
-          supabaseClientProps={{
-            options: {
-              emailRedirectTo: window.location.origin,
-              metadata: {
-                full_name: undefined // This will be filled by the custom fields
-              },
-              customFields: [
-                {
-                  name: 'full_name',
-                  type: 'text',
-                  label: 'Full Name',
-                  placeholder: 'Enter your full name',
-                  required: true,
-                }
-              ]
+          view="sign_in"
+          localization={{
+            variables: {
+              sign_up: {
+                email_label: "Email",
+                password_label: "Password",
+                full_name_label: "Full Name",
+                button_label: "Sign Up"
+              }
             }
+          }}
+          magicLink={false}
+          socialLayout="horizontal"
+          additionalData={{
+            full_name: undefined // This will be filled by the user
           }}
         />
       </Container>
