@@ -7,7 +7,7 @@ import ProjectAssignmentSelect from "./ProjectAssignmentSelect";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Project } from "@/types/project";
 
 interface ProjectCardProps {
@@ -22,27 +22,69 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleAssignUser = async (userId: string | null) => {
+  const { data: assignedUsers = [] } = useQuery({
+    queryKey: ["project_assignments", project.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_assignments")
+        .select("user_id, profiles(id, full_name)")
+        .eq("project_id", project.id);
+
+      if (error) throw error;
+      return data.map((assignment) => assignment.profiles);
+    },
+  });
+
+  const handleAssignUser = async (userId: string) => {
     try {
       const { error } = await supabase
-        .from("projects")
-        .update({ assigned_user_id: userId })
-        .eq("id", project.id);
+        .from("project_assignments")
+        .insert({ project_id: project.id, user_id: userId });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Project assignment updated successfully",
+        description: "User assigned successfully",
       });
 
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({
+        queryKey: ["project_assignments", project.id],
+      });
     } catch (error) {
       console.error("Error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update project assignment",
+        description: "Failed to assign user",
+      });
+    }
+  };
+
+  const handleUnassignUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from("project_assignments")
+        .delete()
+        .eq("project_id", project.id)
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User unassigned successfully",
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["project_assignments", project.id],
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to unassign user",
       });
     }
   };
@@ -68,8 +110,9 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
           <div onClick={(e) => e.stopPropagation()}>
             <ProjectAssignmentSelect
               projectId={project.id}
-              currentAssignedUserId={project.assigned_user_id}
+              currentAssignedUsers={assignedUsers}
               onAssign={handleAssignUser}
+              onUnassign={handleUnassignUser}
             />
           </div>
         )}

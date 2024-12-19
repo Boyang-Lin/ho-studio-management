@@ -10,7 +10,6 @@ export interface Project {
   created_at?: string;
   updated_at?: string;
   user_id: string;
-  assigned_user_id?: string | null;
 }
 
-export type ProjectFormValues = Omit<Project, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'assigned_user_id'>;
+export type ProjectFormValues = Omit<Project, 'id' | 'created_at' | 'updated_at' | 'user_id'>;
