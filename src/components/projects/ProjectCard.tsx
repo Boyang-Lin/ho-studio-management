@@ -22,42 +22,32 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: assignedUsers = [] } = useQuery({
-    queryKey: ["project_assignments", project.id],
+  const { data: assignedUser } = useQuery({
+    queryKey: ["project_assigned_user", project.id],
     queryFn: async () => {
-      const { data: assignments, error } = await supabase
-        .from("project_assignments")
-        .select("user_id")
-        .eq("project_id", project.id);
+      if (!project.assigned_user_id) return null;
 
-      if (error) {
-        console.error("Error fetching project assignments:", error);
-        return [];
-      }
-
-      if (!assignments?.length) return [];
-
-      const userIds = assignments.map(a => a.user_id);
-      
-      const { data: profiles, error: profilesError } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("id, full_name")
-        .in("id", userIds);
+        .eq("id", project.assigned_user_id)
+        .single();
 
-      if (profilesError) {
-        console.error("Error fetching profiles:", profilesError);
-        return [];
+      if (error) {
+        console.error("Error fetching assigned user:", error);
+        return null;
       }
 
-      return profiles || [];
+      return data;
     },
   });
 
   const handleAssignUser = async (userId: string) => {
     try {
       const { error } = await supabase
-        .from("project_assignments")
-        .insert({ project_id: project.id, user_id: userId });
+        .from("projects")
+        .update({ assigned_user_id: userId })
+        .eq("id", project.id);
 
       if (error) throw error;
 
@@ -67,7 +57,10 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["project_assignments", project.id],
+        queryKey: ["projects"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["project_assigned_user", project.id],
       });
     } catch (error) {
       console.error("Error:", error);
@@ -75,34 +68,6 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
         variant: "destructive",
         title: "Error",
         description: "Failed to assign user",
-      });
-    }
-  };
-
-  const handleUnassignUser = async (userId: string) => {
-    try {
-      const { error } = await supabase
-        .from("project_assignments")
-        .delete()
-        .eq("project_id", project.id)
-        .eq("user_id", userId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "User unassigned successfully",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["project_assignments", project.id],
-      });
-    } catch (error) {
-      console.error("Error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to unassign user",
       });
     }
   };
@@ -128,9 +93,8 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
           <div onClick={(e) => e.stopPropagation()}>
             <ProjectAssignmentSelect
               projectId={project.id}
-              currentAssignedUsers={assignedUsers}
+              currentAssignedUser={assignedUser}
               onAssign={handleAssignUser}
-              onUnassign={handleUnassignUser}
             />
           </div>
         )}
