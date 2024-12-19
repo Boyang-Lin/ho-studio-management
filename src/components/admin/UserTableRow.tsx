@@ -21,7 +21,7 @@ interface UserTableRowProps {
 
 const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValues, setEditValues] = useState({ 
+  const [editValues, setEditValues] = useState({
     role: user.role || "",
     full_name: user.full_name || "",
     user_type: user.user_type || "staff"
@@ -50,13 +50,19 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
       <TableCell>{user.email || "N/A"}</TableCell>
       <TableCell>
         {isEditing ? (
-          <Input
+          <Select
             value={editValues.role}
-            onChange={(e) =>
-              setEditValues({ ...editValues, role: e.target.value })
-            }
-            placeholder="Enter role"
-          />
+            onValueChange={(value) => setEditValues({ ...editValues, role: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="manager">Manager</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+            </SelectContent>
+          </Select>
         ) : (
           user.role || "N/A"
         )}
@@ -96,7 +102,14 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                setEditValues({
+                  role: user.role || "",
+                  full_name: user.full_name || "",
+                  user_type: user.user_type || "staff"
+                });
+                setIsEditing(false);
+              }}
             >
               Cancel
             </Button>
