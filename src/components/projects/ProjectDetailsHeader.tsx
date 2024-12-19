@@ -71,12 +71,16 @@ export const ProjectDetailsHeader = ({ project }: ProjectDetailsHeaderProps) => 
               value={project.status}
               onValueChange={handleStatusChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white border-[#9b87f5] text-[#1A1F2C] hover:border-[#7E69AB] focus:ring-[#9b87f5]">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-[#9b87f5] shadow-lg">
                 {PROJECT_STATUSES.map((status) => (
-                  <SelectItem key={status} value={status}>
+                  <SelectItem 
+                    key={status} 
+                    value={status}
+                    className="hover:bg-[#E5DEFF] text-[#1A1F2C] focus:bg-[#D6BCFA] focus:text-[#1A1F2C]"
+                  >
                     {status}
                   </SelectItem>
                 ))}
