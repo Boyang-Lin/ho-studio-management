@@ -10,18 +10,29 @@ const UserList = () => {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
+      // First get all profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("*, auth:auth.users!profiles_id_fkey(email)")
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
 
-      // Transform the data to flatten the auth_users object
-      return profiles.map((profile: any) => ({
-        ...profile,
-        email: profile.auth?.email || "N/A",
-      }));
+      // Then get all users' emails
+      const { data: authUsers, error: authError } = await supabase
+        .from("auth.users")
+        .select("id, email");
+
+      if (authError) throw authError;
+
+      // Combine the data
+      return profiles.map((profile: any) => {
+        const authUser = authUsers.find((user: any) => user.id === profile.id);
+        return {
+          ...profile,
+          email: authUser?.email || "N/A",
+        };
+      });
     },
   });
 
