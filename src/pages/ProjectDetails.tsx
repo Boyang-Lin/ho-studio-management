@@ -56,22 +56,6 @@ const ProjectDetails = () => {
     },
   });
 
-  const { data: consultantGroups = [] } = useQuery({
-    queryKey: ["consultant_groups"],
-    queryFn: async () => {
-      const { data: groups, error: groupsError } = await supabase
-        .from("consultant_groups")
-        .select("*, consultants:consultant_group_memberships(consultant:consultants(*))");
-
-      if (groupsError) throw groupsError;
-
-      return groups.map(group => ({
-        ...group,
-        consultants: group.consultants?.map((membership: any) => membership.consultant) || []
-      }));
-    },
-  });
-
   useEffect(() => {
     const channel = supabase
       .channel('project_consultants_changes')
@@ -109,25 +93,52 @@ const ProjectDetails = () => {
           .eq("project_id", id)
           .eq("consultant_id", consultant.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Delete error:", error);
+          throw error;
+        }
 
-        await queryClient.invalidateQueries({ queryKey: ["project_consultants", id] });
+        // Update local state immediately
+        queryClient.setQueryData(
+          ["project_consultants", id],
+          (oldData: any) => oldData.filter((pc: any) => pc.consultant_id !== consultant.id)
+        );
 
         toast({
           title: "Success",
           description: "Consultant removed successfully",
         });
       } else {
-        const { error } = await supabase
+        const newProjectConsultant = {
+          project_id: id,
+          consultant_id: consultant.id,
+        };
+
+        const { data: insertedData, error } = await supabase
           .from("project_consultants")
-          .insert({
-            project_id: id,
-            consultant_id: consultant.id,
-          });
+          .insert(newProjectConsultant)
+          .select(`
+            *,
+            consultant:consultants(
+              id,
+              name,
+              email,
+              phone,
+              company_name
+            )
+          `)
+          .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Insert error:", error);
+          throw error;
+        }
 
-        await queryClient.invalidateQueries({ queryKey: ["project_consultants", id] });
+        // Update local state immediately
+        queryClient.setQueryData(
+          ["project_consultants", id],
+          (oldData: any) => [...(oldData || []), insertedData]
+        );
 
         toast({
           title: "Success",
