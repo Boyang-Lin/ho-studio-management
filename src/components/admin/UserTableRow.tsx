@@ -50,19 +50,11 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
       <TableCell>{user.email || "N/A"}</TableCell>
       <TableCell>
         {isEditing ? (
-          <Select
+          <Input
             value={editValues.role}
-            onValueChange={(value) => setEditValues({ ...editValues, role: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="manager">Manager</SelectItem>
-              <SelectItem value="user">User</SelectItem>
-            </SelectContent>
-          </Select>
+            onChange={(e) => setEditValues({ ...editValues, role: e.target.value })}
+            placeholder="Enter role"
+          />
         ) : (
           user.role || "N/A"
         )}
