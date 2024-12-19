@@ -14,7 +14,7 @@ const UserList = () => {
         .from("profiles")
         .select(`
           *,
-          auth_user:users (
+          auth_user:auth.users(
             email
           )
         `)
