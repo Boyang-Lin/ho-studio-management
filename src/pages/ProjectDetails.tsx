@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConsultantGroupsTab from "@/components/projects/ConsultantGroupsTab";
 import PaymentManagementTab from "@/components/projects/PaymentManagementTab";
 import { useUserType } from "@/hooks/useUserType";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -18,7 +19,9 @@ const ProjectDetails = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("engaged-consultants");
   const userType = useUserType();
+  const isAdmin = useIsAdmin();
   const isClient = userType === 'client';
+  const isStaff = userType === 'staff' || isAdmin;
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ["project", id],
@@ -70,6 +73,7 @@ const ProjectDetails = () => {
         consultants: group.consultants?.map((membership: any) => membership.consultant) || []
       }));
     },
+    enabled: isStaff, // Only fetch consultant groups for staff and admin users
   });
 
   useEffect(() => {
@@ -97,7 +101,7 @@ const ProjectDetails = () => {
   }, [id, queryClient]);
 
   const handleAssignConsultant = async (consultant: any) => {
-    if (isClient) return; // Prevent clients from assigning consultants
+    if (!isStaff) return; // Only allow staff and admin to assign consultants
     
     const isAssigned = projectConsultants.some(pc => pc.consultant_id === consultant.id);
     
@@ -167,11 +171,17 @@ const ProjectDetails = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-2">
             <TabsTrigger value="engaged-consultants" className="space-x-2">
               <UserCheck className="h-4 w-4" />
               <span>Engaged Consultants</span>
             </TabsTrigger>
+            {isStaff && (
+              <TabsTrigger value="all-consultants" className="space-x-2">
+                <Users className="h-4 w-4" />
+                <span>All Consultants</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="engaged-consultants">
@@ -180,10 +190,29 @@ const ProjectDetails = () => {
               projectConsultants={projectConsultants}
               onAssignConsultant={handleAssignConsultant}
               filterAssignedOnly
-              readOnly={isClient}
+              readOnly={!isStaff}
             />
           </TabsContent>
+
+          {isStaff && (
+            <TabsContent value="all-consultants">
+              <ConsultantGroupsTab
+                consultantGroups={consultantGroups}
+                projectConsultants={projectConsultants}
+                onAssignConsultant={handleAssignConsultant}
+                variant="selection"
+              />
+            </TabsContent>
+          )}
         </Tabs>
+
+        {(isStaff || isClient) && (
+          <PaymentManagementTab
+            projectId={id || ''}
+            projectConsultants={projectConsultants}
+            readOnly={isClient}
+          />
+        )}
       </Container>
     </div>
   );

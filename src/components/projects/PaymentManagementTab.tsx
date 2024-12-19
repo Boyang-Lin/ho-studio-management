@@ -17,9 +17,14 @@ interface PaymentManagementTabProps {
       name: string;
     };
   }>;
+  readOnly?: boolean;
 }
 
-const PaymentManagementTab = ({ projectId, projectConsultants }: PaymentManagementTabProps) => {
+const PaymentManagementTab = ({ 
+  projectId, 
+  projectConsultants,
+  readOnly = false 
+}: PaymentManagementTabProps) => {
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 
@@ -49,6 +54,7 @@ const PaymentManagementTab = ({ projectId, projectConsultants }: PaymentManageme
   });
 
   const handleEditInvoice = (invoice: any) => {
+    if (readOnly) return;
     setSelectedInvoice(invoice);
     setInvoiceDialogOpen(true);
   };
@@ -62,10 +68,12 @@ const PaymentManagementTab = ({ projectId, projectConsultants }: PaymentManageme
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Payment Management</h2>
-        <Button onClick={() => setInvoiceDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Invoice
-        </Button>
+        {!readOnly && (
+          <Button onClick={() => setInvoiceDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Invoice
+          </Button>
+        )}
       </div>
 
       <PaymentSummary
@@ -82,16 +90,19 @@ const PaymentManagementTab = ({ projectId, projectConsultants }: PaymentManageme
             invoices={invoices}
             isLoading={isLoading}
             onEdit={handleEditInvoice}
+            readOnly={readOnly}
           />
         </CardContent>
       </Card>
 
-      <InvoiceDialog
-        open={invoiceDialogOpen}
-        onOpenChange={handleCloseInvoiceDialog}
-        invoice={selectedInvoice}
-        projectConsultants={projectConsultants}
-      />
+      {!readOnly && (
+        <InvoiceDialog
+          open={invoiceDialogOpen}
+          onOpenChange={handleCloseInvoiceDialog}
+          invoice={selectedInvoice}
+          projectConsultants={projectConsultants}
+        />
+      )}
     </div>
   );
 };
