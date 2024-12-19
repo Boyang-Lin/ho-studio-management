@@ -67,13 +67,12 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
   };
 
   const handleCardClick = () => {
-    if (userType === 'client') return; // Prevent navigation for clients
     navigate(`/project/${project.id}`);
   };
 
   return (
     <Card
-      className={`transition-all hover:shadow-md group ${userType === 'client' ? '' : 'cursor-pointer'}`}
+      className="transition-all hover:shadow-md group cursor-pointer"
       onClick={handleCardClick}
     >
       <CardHeader>
