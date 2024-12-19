@@ -10,29 +10,13 @@ const UserList = () => {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      // First get all profiles
-      const { data: profiles, error: profilesError } = await supabase
+      const { data: profiles, error } = await supabase
         .from("profiles")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (profilesError) throw profilesError;
-
-      // Then get all users' emails
-      const { data: authUsers, error: authError } = await supabase
-        .from("auth.users")
-        .select("id, email");
-
-      if (authError) throw authError;
-
-      // Combine the data
-      return profiles.map((profile: any) => {
-        const authUser = authUsers.find((user: any) => user.id === profile.id);
-        return {
-          ...profile,
-          email: authUser?.email || "N/A",
-        };
-      });
+      if (error) throw error;
+      return profiles;
     },
   });
 

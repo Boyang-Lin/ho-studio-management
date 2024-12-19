@@ -10,7 +10,6 @@ import UserTableRow from "./UserTableRow";
 interface User {
   id: string;
   full_name: string;
-  email: string;
   role: string;
   is_admin: boolean;
   created_at: string;
@@ -33,7 +32,6 @@ const UserGroupSection = ({ title, users, onSave }: UserGroupSectionProps) => {
         <TableHeader>
           <TableRow>
             <TableHead>Full Name</TableHead>
-            <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Admin Status</TableHead>
             <TableHead>Joined</TableHead>

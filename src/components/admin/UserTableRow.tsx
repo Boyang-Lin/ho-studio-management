@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 interface User {
   id: string;
   full_name: string;
-  email: string;
   role: string;
   is_admin: boolean;
   created_at: string;
@@ -29,7 +28,6 @@ const UserTableRow = ({ user, onSave }: UserTableRowProps) => {
   return (
     <TableRow>
       <TableCell>{user.full_name || "N/A"}</TableCell>
-      <TableCell>{user.email || "N/A"}</TableCell>
       <TableCell>
         {isEditing ? (
           <Input
