@@ -8,20 +8,11 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { Project } from "@/types/project";
 
 interface ProjectCardProps {
-  project: {
-    id: string;
-    name: string;
-    description?: string;
-    client_name: string;
-    client_contact: string;
-    client_email: string;
-    estimated_cost: number;
-    status: string;
-    assigned_user_id: string | null;
-  };
-  onEdit: (project: any) => void;
+  project: Project;
+  onEdit: (project: Project) => void;
   onDelete: (id: string) => void;
 }
 
