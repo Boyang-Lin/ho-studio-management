@@ -10,12 +10,14 @@ import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConsultantGroupsTab from "@/components/projects/ConsultantGroupsTab";
 import PaymentManagementTab from "@/components/projects/PaymentManagementTab";
+import { useUserType } from "@/hooks/useUserType";
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("all-consultants");
+  const [activeTab, setActiveTab] = useState("engaged-consultants");
+  const userType = useUserType();
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ["project", id],
@@ -94,6 +96,8 @@ const ProjectDetails = () => {
   }, [id, queryClient]);
 
   const handleAssignConsultant = async (consultant: any) => {
+    if (userType === 'client') return; // Prevent clients from assigning consultants
+    
     const isAssigned = projectConsultants.some(pc => pc.consultant_id === consultant.id);
     
     try {
@@ -162,28 +166,34 @@ const ProjectDetails = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="all-consultants" className="space-x-2">
-              <Users className="h-4 w-4" />
-              <span>All Consultants</span>
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
+            {userType !== 'client' && (
+              <TabsTrigger value="all-consultants" className="space-x-2">
+                <Users className="h-4 w-4" />
+                <span>All Consultants</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="engaged-consultants" className="space-x-2">
               <UserCheck className="h-4 w-4" />
               <span>Engaged Consultants</span>
             </TabsTrigger>
-            <TabsTrigger value="invoices" className="space-x-2">
-              <CreditCard className="h-4 w-4" />
-              <span>Invoices & Payment</span>
-            </TabsTrigger>
+            {userType !== 'client' && (
+              <TabsTrigger value="invoices" className="space-x-2">
+                <CreditCard className="h-4 w-4" />
+                <span>Invoices & Payment</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
-          <TabsContent value="all-consultants">
-            <ConsultantGroupsTab
-              consultantGroups={consultantGroups}
-              projectConsultants={projectConsultants}
-              onAssignConsultant={handleAssignConsultant}
-            />
-          </TabsContent>
+          {userType !== 'client' && (
+            <TabsContent value="all-consultants">
+              <ConsultantGroupsTab
+                consultantGroups={consultantGroups}
+                projectConsultants={projectConsultants}
+                onAssignConsultant={handleAssignConsultant}
+              />
+            </TabsContent>
+          )}
 
           <TabsContent value="engaged-consultants">
             <ConsultantGroupsTab
@@ -191,15 +201,18 @@ const ProjectDetails = () => {
               projectConsultants={projectConsultants}
               onAssignConsultant={handleAssignConsultant}
               filterAssignedOnly
+              readOnly={userType === 'client'}
             />
           </TabsContent>
 
-          <TabsContent value="invoices">
-            <PaymentManagementTab
-              projectId={id || ''}
-              projectConsultants={projectConsultants}
-            />
-          </TabsContent>
+          {userType !== 'client' && (
+            <TabsContent value="invoices">
+              <PaymentManagementTab
+                projectId={id || ''}
+                projectConsultants={projectConsultants}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </Container>
     </div>

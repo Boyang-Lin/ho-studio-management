@@ -24,10 +24,12 @@ interface EngagedConsultantCardWithDialogProps {
       company_name?: string;
     };
   };
+  readOnly?: boolean;
 }
 
 const EngagedConsultantCardWithDialog = ({
   projectConsultant,
+  readOnly = false,
 }: EngagedConsultantCardWithDialogProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
@@ -50,11 +52,13 @@ const EngagedConsultantCardWithDialog = ({
   });
 
   const handleEditTask = (task: any) => {
+    if (readOnly) return;
     setSelectedTask(task);
     setTaskDialogOpen(true);
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    if (readOnly) return;
     try {
       const { error } = await supabase
         .from("consultant_tasks")
@@ -80,6 +84,7 @@ const EngagedConsultantCardWithDialog = ({
   };
 
   const handleStatusChange = async (taskId: string, currentStatus: string) => {
+    if (readOnly) return;
     const statuses = ["Pending Input", "In Progress", "Completed"];
     const currentIndex = statuses.indexOf(currentStatus);
     const newStatus = statuses[(currentIndex + 1) % statuses.length];
@@ -111,67 +116,70 @@ const EngagedConsultantCardWithDialog = ({
   return (
     <>
       <Card 
-        className="cursor-pointer hover:shadow-md transition-shadow bg-white"
-        onClick={() => setDialogOpen(true)}
+        className={`${!readOnly ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} bg-white`}
+        onClick={() => !readOnly && setDialogOpen(true)}
       >
         <CardHeader>
           <ConsultantContactInfo consultant={projectConsultant.consultant} />
         </CardHeader>
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{projectConsultant.consultant.name}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6">
-            <ConsultantPaymentInfo 
-              projectConsultant={{
-                ...projectConsultant,
-                // Pre-select this consultant when creating a new invoice
-                preSelectedConsultantId: projectConsultant.id
-              }} 
-            />
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Tasks</h3>
-                <Button onClick={() => {
-                  setSelectedTask(null);
-                  setTaskDialogOpen(true);
-                }}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Task
-                </Button>
+      {!readOnly && (
+        <>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{projectConsultant.consultant.name}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                <ConsultantPaymentInfo 
+                  projectConsultant={{
+                    ...projectConsultant,
+                    preSelectedConsultantId: projectConsultant.id
+                  }} 
+                />
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">Tasks</h3>
+                    <Button onClick={() => {
+                      setSelectedTask(null);
+                      setTaskDialogOpen(true);
+                    }}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Task
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {tasks.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No tasks yet</p>
+                    ) : (
+                      tasks.map((task) => (
+                        <TaskListItem
+                          key={task.id}
+                          task={task}
+                          onEdit={handleEditTask}
+                          onDelete={handleDeleteTask}
+                          onStatusChange={handleStatusChange}
+                          getTaskStatusColor={getTaskStatusColor}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
-              
-              <div className="space-y-2">
-                {tasks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No tasks yet</p>
-                ) : (
-                  tasks.map((task) => (
-                    <TaskListItem
-                      key={task.id}
-                      task={task}
-                      onEdit={handleEditTask}
-                      onDelete={handleDeleteTask}
-                      onStatusChange={handleStatusChange}
-                      getTaskStatusColor={getTaskStatusColor}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+            </DialogContent>
+          </Dialog>
 
-      <TaskDialog
-        open={taskDialogOpen}
-        onOpenChange={setTaskDialogOpen}
-        projectConsultantId={projectConsultant.id}
-        task={selectedTask}
-      />
+          <TaskDialog
+            open={taskDialogOpen}
+            onOpenChange={setTaskDialogOpen}
+            projectConsultantId={projectConsultant.id}
+            task={selectedTask}
+          />
+        </>
+      )}
     </>
   );
 };

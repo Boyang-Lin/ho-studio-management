@@ -30,6 +30,7 @@ interface ConsultantGroupsTabProps {
   onAssignConsultant: (consultant: any) => void;
   variant?: 'default' | 'selection';
   filterAssignedOnly?: boolean;
+  readOnly?: boolean;
 }
 
 const ConsultantGroupsTab = ({
@@ -38,6 +39,7 @@ const ConsultantGroupsTab = ({
   onAssignConsultant,
   variant = 'selection',
   filterAssignedOnly = false,
+  readOnly = false,
 }: ConsultantGroupsTabProps) => {
   const assignedConsultantIds = projectConsultants.map(pc => pc.consultant_id);
 
@@ -82,11 +84,13 @@ const ConsultantGroupsTab = ({
                   <div className="col-span-1">
                     <EngagedConsultantCardWithDialog
                       projectConsultant={consultant.projectConsultant}
+                      readOnly={readOnly}
                     />
                   </div>
                   <div className="col-span-2">
                     <TaskSummaryCard
                       projectConsultantId={consultant.projectConsultant.id}
+                      readOnly={readOnly}
                     />
                   </div>
                 </div>
@@ -108,6 +112,7 @@ const ConsultantGroupsTab = ({
           onAssignConsultant={onAssignConsultant}
           assignedConsultantIds={assignedConsultantIds}
           projectConsultants={projectConsultants}
+          readOnly={readOnly}
         />
       ))}
     </div>

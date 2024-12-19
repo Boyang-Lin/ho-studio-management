@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { ProjectStatusBadge } from "./ProjectStatusBadge";
 import { ProjectDetails } from "./ProjectDetails";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
 import { Project } from "@/types/project";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import ProjectActions from "./ProjectActions";
 import { useUserType } from "@/hooks/useUserType";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProjectCardProps {
   project: Project;
@@ -66,10 +66,15 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
     }
   };
 
+  const handleCardClick = () => {
+    if (userType === 'client') return; // Prevent navigation for clients
+    navigate(`/project/${project.id}`);
+  };
+
   return (
     <Card
       className={`transition-all hover:shadow-md group ${userType === 'client' ? '' : 'cursor-pointer'}`}
-      onClick={() => userType !== 'client' && navigate(`/project/${project.id}`)}
+      onClick={handleCardClick}
     >
       <CardHeader>
         <div className="flex justify-between items-start">
@@ -78,8 +83,8 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
         </div>
         <ProjectDetails project={project} />
       </CardHeader>
-      <CardContent>
-        {isAdmin && (
+      {isAdmin && (
+        <CardContent>
           <div onClick={(e) => e.stopPropagation()} className="space-y-4">
             <div>
               <label className="text-sm font-medium">Assigned Staff</label>
@@ -120,8 +125,8 @@ const ProjectCard = ({ project, onEdit, onDelete }: ProjectCardProps) => {
               </Select>
             </div>
           </div>
-        )}
-      </CardContent>
+        </CardContent>
+      )}
     </Card>
   );
 };
