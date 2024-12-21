@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import ProjectDialogs from "@/components/projects/ProjectDialogs";
 import { useProjectsQuery } from "@/hooks/useProjectsQuery";
+import { useConsultantGroups } from "@/hooks/useConsultantGroups";
 
 const Index = () => {
   const { toast } = useToast();
@@ -26,22 +27,7 @@ const Index = () => {
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
   const { data: projects = [], refetch: refetchProjects } = useProjectsQuery();
-
-  const { data: consultantGroups = [], refetch: refetchConsultantGroups } = useQuery({
-    queryKey: ["consultant_groups"],
-    queryFn: async () => {
-      const { data: groups, error: groupsError } = await supabase
-        .from("consultant_groups")
-        .select("*, consultants:consultant_group_memberships(consultant:consultants(*))");
-
-      if (groupsError) throw groupsError;
-
-      return groups.map(group => ({
-        ...group,
-        consultants: group.consultants?.map((membership: any) => membership.consultant) || []
-      }));
-    },
-  });
+  const { data: consultantGroups = [], refetch: refetchConsultantGroups } = useConsultantGroups();
 
   const handleDeleteProject = async (id: string) => {
     const { error } = await supabase.from("projects").delete().eq("id", id);
