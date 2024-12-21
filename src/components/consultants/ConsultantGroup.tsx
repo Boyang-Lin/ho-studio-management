@@ -48,11 +48,12 @@ const ConsultantGroup = ({
   readOnly = false,
 }: ConsultantGroupProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const isUngrouped = group.id === "ungrouped";
 
   return (
     <Card className="group">
       <CardHeader className="relative">
-        {!readOnly && (
+        {!readOnly && !isUngrouped && (
           <ConsultantGroupActions
             group={group}
             onEditGroup={onEditGroup}
