@@ -1,14 +1,12 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import ConsultantFormFields from "./ConsultantFormFields";
+import { useConsultantGroup } from "@/hooks/useConsultantGroup";
+import { useConsultantFormSubmit } from "@/hooks/useConsultantFormSubmit";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -37,39 +35,14 @@ interface ConsultantFormProps {
 }
 
 const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { getCurrentGroupId } = useConsultantGroup(consultant?.id);
+  const { handleSubmit: submitForm, isSubmitting } = useConsultantFormSubmit(onClose);
 
-  // Get the current group_id for the consultant if it exists
-  const getCurrentGroupId = async (consultantId: string | undefined) => {
-    if (!consultantId) return '';
-    
-    try {
-      const { data, error } = await supabase
-        .from('consultant_group_memberships')
-        .select('group_id')
-        .eq('consultant_id', consultantId)
-        .maybeSingle();
-        
-      if (error) {
-        console.error('Error fetching group ID:', error);
-        return '';
-      }
-      
-      return data?.group_id || '';
-    } catch (error) {
-      console.error('Error in getCurrentGroupId:', error);
-      return '';
-    }
-  };
-
-  // Initialize form with existing consultant data
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: async () => {
       if (consultant?.id) {
-        const currentGroupId = await getCurrentGroupId(consultant.id);
+        const currentGroupId = await getCurrentGroupId();
         return {
           name: consultant.name,
           email: consultant.email,
@@ -89,96 +62,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
   });
 
   const onSubmit = async (values: FormValues) => {
-    setIsSubmitting(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      if (consultant?.id) {
-        // Update existing consultant
-        const { error: consultantError } = await supabase
-          .from("consultants")
-          .update({
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            company_name: values.company_name,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", consultant.id);
-
-        if (consultantError) throw consultantError;
-
-        // Delete existing group membership
-        const { error: deleteError } = await supabase
-          .from("consultant_group_memberships")
-          .delete()
-          .eq("consultant_id", consultant.id);
-
-        if (deleteError) throw deleteError;
-
-        // Insert new group membership if a group is selected
-        if (values.group_id) {
-          const { error: membershipError } = await supabase
-            .from("consultant_group_memberships")
-            .insert({
-              consultant_id: consultant.id,
-              group_id: values.group_id,
-            });
-
-          if (membershipError) throw membershipError;
-        }
-
-        toast({
-          title: "Success",
-          description: "Consultant updated successfully",
-        });
-      } else {
-        // Create new consultant with generated UUID
-        const newConsultantId = crypto.randomUUID();
-        const { error: consultantError } = await supabase
-          .from("consultants")
-          .insert({
-            id: newConsultantId,
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            company_name: values.company_name,
-            user_id: user.id,
-          });
-
-        if (consultantError) throw consultantError;
-
-        // Insert group membership if a group is selected
-        if (values.group_id) {
-          const { error: membershipError } = await supabase
-            .from("consultant_group_memberships")
-            .insert({
-              consultant_id: newConsultantId,
-              group_id: values.group_id,
-            });
-
-          if (membershipError) throw membershipError;
-        }
-
-        toast({
-          title: "Success",
-          description: "Consultant created successfully",
-        });
-      }
-
-      queryClient.invalidateQueries({ queryKey: ["consultant_groups"] });
-      onClose();
-    } catch (error) {
-      console.error("Error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await submitForm(values, consultant);
   };
 
   return (
