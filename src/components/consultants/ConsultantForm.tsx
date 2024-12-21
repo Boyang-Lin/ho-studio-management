@@ -41,14 +41,37 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Get the current group_id for the consultant if it exists
+  const getCurrentGroupId = async (consultantId: string) => {
+    const { data } = await supabase
+      .from('consultant_group_memberships')
+      .select('group_id')
+      .eq('consultant_id', consultantId)
+      .maybeSingle();
+    return data?.group_id || '';
+  };
+
+  // Initialize form with existing consultant data
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: consultant?.name || "",
-      email: consultant?.email || "",
-      phone: consultant?.phone || "",
-      company_name: consultant?.company_name || "",
-      group_id: consultant?.group_id || "",
+    defaultValues: async () => {
+      if (consultant) {
+        const currentGroupId = await getCurrentGroupId(consultant.id);
+        return {
+          name: consultant.name,
+          email: consultant.email,
+          phone: consultant.phone || "",
+          company_name: consultant.company_name || "",
+          group_id: currentGroupId,
+        };
+      }
+      return {
+        name: "",
+        email: "",
+        phone: "",
+        company_name: "",
+        group_id: "",
+      };
     },
   });
 
@@ -63,7 +86,6 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
         const { error: consultantError } = await supabase
           .from("consultants")
           .update({
-            id: consultant.id, // Include id in the update
             name: values.name,
             email: values.email,
             phone: values.phone,
