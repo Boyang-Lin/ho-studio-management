@@ -11,6 +11,14 @@ export default defineConfig({
     },
   },
   server: {
-    historyApiFallback: true,
+    port: 8080,
+    proxy: {
+      // This handles client-side routing
+      "/*": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        rewrite: (path) => path,
+      },
+    },
   },
 });
