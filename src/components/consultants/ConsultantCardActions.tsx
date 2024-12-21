@@ -21,6 +21,7 @@ interface ConsultantCardActionsProps {
   onAssign?: (consultant: any) => void;
   isAssigned?: boolean;
   variant?: 'default' | 'selection';
+  consultant?: any;
 }
 
 export const ConsultantCardActions = ({
@@ -30,6 +31,7 @@ export const ConsultantCardActions = ({
   onAssign,
   isAssigned = false,
   variant = 'default',
+  consultant,
 }: ConsultantCardActionsProps) => {
   const isAdmin = useIsAdmin();
   const isSelectionVariant = variant === 'selection';
@@ -53,7 +55,7 @@ export const ConsultantCardActions = ({
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => onEdit?.(consultantId)}
+        onClick={() => onEdit?.(consultant)}
       >
         <Pencil className="h-4 w-4" />
       </Button>

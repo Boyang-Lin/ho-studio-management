@@ -21,15 +21,15 @@ export const useConsultantFormSubmit = (onClose: () => void) => {
           .update({
             name: values.name,
             email: values.email,
-            phone: values.phone,
-            company_name: values.company_name,
+            phone: values.phone || null,
+            company_name: values.company_name || null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", consultant.id);
 
         if (consultantError) throw consultantError;
 
-        // Delete existing group membership
+        // Delete existing group membership if exists
         const { error: deleteError } = await supabase
           .from("consultant_group_memberships")
           .delete()
@@ -62,8 +62,8 @@ export const useConsultantFormSubmit = (onClose: () => void) => {
             id: newConsultantId,
             name: values.name,
             email: values.email,
-            phone: values.phone,
-            company_name: values.company_name,
+            phone: values.phone || null,
+            company_name: values.company_name || null,
             user_id: user.id,
           });
 

@@ -49,6 +49,7 @@ const ConsultantCard = ({
               onAssign={onAssign}
               isAssigned={isAssigned}
               variant={variant}
+              consultant={consultant}
             />
           </div>
         )}
