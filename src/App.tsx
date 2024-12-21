@@ -36,6 +36,14 @@ const App = () => (
             }
           />
           <Route
+            path="/consultant/:consultantId"
+            element={
+              <ProtectedRoute>
+                <ConsultantDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/project/:projectId/consultant/:consultantId"
             element={
               <ProtectedRoute>

@@ -1,30 +1,24 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import TaskDialog from "@/components/projects/TaskDialog";
-import { useNavigate } from "react-router-dom";
-import { ConsultantPaymentInfo } from "@/components/consultants/ConsultantPaymentInfo";
+import { ArrowLeft } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ConsultantContactInfo } from "@/components/consultants/ConsultantContactInfo";
+import { Badge } from "@/components/ui/badge";
 
 const ConsultantDetails = () => {
-  const { projectId, consultantId } = useParams();
+  const { consultantId } = useParams();
   const navigate = useNavigate();
-  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
 
-  const { data: projectConsultant } = useQuery({
-    queryKey: ["project_consultant", projectId, consultantId],
+  const { data: consultant } = useQuery({
+    queryKey: ["consultant", consultantId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("project_consultants")
-        .select(`
-          *,
-          consultant:consultants(*)
-        `)
-        .eq("project_id", projectId)
-        .eq("consultant_id", consultantId)
+        .from("consultants")
+        .select("*")
+        .eq("id", consultantId)
         .single();
 
       if (error) throw error;
@@ -32,7 +26,23 @@ const ConsultantDetails = () => {
     },
   });
 
-  if (!projectConsultant) {
+  const { data: engagedProjects = [] } = useQuery({
+    queryKey: ["consultant_projects", consultantId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_consultants")
+        .select(`
+          *,
+          project:projects(*)
+        `)
+        .eq("consultant_id", consultantId);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (!consultant) {
     return <div>Loading...</div>;
   }
 
@@ -43,44 +53,61 @@ const ConsultantDetails = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/project/${projectId}`)}
+            onClick={() => navigate("/")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-bold">{projectConsultant.consultant.name}</h1>
+          <h1 className="text-2xl font-bold">Consultant Details</h1>
         </div>
 
         <div className="grid gap-6">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Contact Information</p>
-            <p>{projectConsultant.consultant.email}</p>
-            {projectConsultant.consultant.phone && (
-              <p>{projectConsultant.consultant.phone}</p>
-            )}
-            {projectConsultant.consultant.company_name && (
-              <p>{projectConsultant.consultant.company_name}</p>
-            )}
-          </div>
+          <Card>
+            <CardHeader>
+              <ConsultantContactInfo consultant={consultant} />
+            </CardHeader>
+          </Card>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Tasks</h2>
-              <Button onClick={() => setTaskDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Task
-              </Button>
+            <h2 className="text-xl font-semibold">Engaged Projects</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {engagedProjects.map((engagement) => (
+                <Card 
+                  key={engagement.id}
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate(`/project/${engagement.project.id}`)}
+                >
+                  <CardContent className="pt-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-semibold">{engagement.project.name}</h3>
+                        <Badge>{engagement.project.status}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Client: {engagement.project.client_name}
+                      </p>
+                      {engagement.quote && (
+                        <p className="text-sm">
+                          Quote: ${engagement.quote.toLocaleString()}
+                        </p>
+                      )}
+                      <Badge 
+                        variant="outline" 
+                        className="mt-2"
+                      >
+                        {engagement.quote_status}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {engagedProjects.length === 0 && (
+                <p className="text-muted-foreground col-span-full">
+                  No projects found for this consultant.
+                </p>
+              )}
             </div>
-            {/* Task list will be implemented here */}
           </div>
-
-          <ConsultantPaymentInfo projectConsultant={projectConsultant} />
         </div>
-
-        <TaskDialog
-          open={taskDialogOpen}
-          onOpenChange={setTaskDialogOpen}
-          projectConsultantId={projectConsultant.id}
-        />
       </Container>
     </div>
   );

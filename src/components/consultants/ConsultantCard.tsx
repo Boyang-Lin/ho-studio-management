@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ConsultantInfo } from "./ConsultantInfo";
 import { ConsultantCardActions } from "./ConsultantCardActions";
 import { QuoteInput } from "./QuoteInput";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface ConsultantCardProps {
   consultant: {
@@ -37,11 +38,24 @@ const ConsultantCard = ({
   projectConsultant,
   readOnly = false,
 }: ConsultantCardProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isIndexPage = location.pathname === '/';
+
+  const handleClick = () => {
+    if (isIndexPage) {
+      navigate(`/consultant/${consultant.id}`);
+    }
+  };
+
   return (
-    <Card className="bg-white group">
+    <Card 
+      className={`bg-white group ${isIndexPage ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      onClick={handleClick}
+    >
       <CardHeader className="relative">
         {!readOnly && (
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4" onClick={(e) => e.stopPropagation()}>
             <ConsultantCardActions
               consultantId={consultant.id}
               onEdit={onEdit}
@@ -56,7 +70,7 @@ const ConsultantCard = ({
         <ConsultantInfo consultant={consultant} />
       </CardHeader>
       {isAssigned && variant === 'selection' && !readOnly && (
-        <CardContent>
+        <CardContent onClick={(e) => e.stopPropagation()}>
           <QuoteInput projectConsultant={projectConsultant} />
         </CardContent>
       )}
