@@ -58,8 +58,8 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
       if (consultant) {
         const currentGroupId = await getCurrentGroupId(consultant.id);
         return {
-          name: consultant.name,
-          email: consultant.email,
+          name: consultant.name || "",
+          email: consultant.email || "",
           phone: consultant.phone || "",
           company_name: consultant.company_name || "",
           group_id: currentGroupId,
