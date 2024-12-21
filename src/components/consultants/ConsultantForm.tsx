@@ -42,24 +42,37 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
   const queryClient = useQueryClient();
 
   // Get the current group_id for the consultant if it exists
-  const getCurrentGroupId = async (consultantId: string) => {
-    const { data } = await supabase
-      .from('consultant_group_memberships')
-      .select('group_id')
-      .eq('consultant_id', consultantId)
-      .maybeSingle();
-    return data?.group_id || '';
+  const getCurrentGroupId = async (consultantId: string | undefined) => {
+    if (!consultantId) return '';
+    
+    try {
+      const { data, error } = await supabase
+        .from('consultant_group_memberships')
+        .select('group_id')
+        .eq('consultant_id', consultantId)
+        .maybeSingle();
+        
+      if (error) {
+        console.error('Error fetching group ID:', error);
+        return '';
+      }
+      
+      return data?.group_id || '';
+    } catch (error) {
+      console.error('Error in getCurrentGroupId:', error);
+      return '';
+    }
   };
 
   // Initialize form with existing consultant data
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: async () => {
-      if (consultant) {
+      if (consultant?.id) {
         const currentGroupId = await getCurrentGroupId(consultant.id);
         return {
-          name: consultant.name || "",
-          email: consultant.email || "",
+          name: consultant.name,
+          email: consultant.email,
           phone: consultant.phone || "",
           company_name: consultant.company_name || "",
           group_id: currentGroupId,
@@ -81,7 +94,7 @@ const ConsultantForm = ({ consultant, groups, onClose }: ConsultantFormProps) =>
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      if (consultant) {
+      if (consultant?.id) {
         // Update existing consultant
         const { error: consultantError } = await supabase
           .from("consultants")
